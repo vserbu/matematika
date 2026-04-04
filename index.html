@@ -482,13 +482,13 @@
                 let questionHTML = '';
                 
                 if (unknownPosition === 0) {
-                    questionHTML = `<input type="number" id="answer" autofocus> ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
+                    questionHTML = `<input type="number" inputmode="numeric" id="answer" autofocus> ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
                 } else if (unknownPosition === 1) {
-                    questionHTML = `${a} ${symbol1} <input type="number" id="answer" autofocus> ${symbol2} ${c} = ${result}`;
+                    questionHTML = `${a} ${symbol1} <input type="number" inputmode="numeric" id="answer" autofocus> ${symbol2} ${c} = ${result}`;
                 } else if (unknownPosition === 2) {
-                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} <input type="number" id="answer" autofocus> = ${result}`;
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} <input type="number" inputmode="numeric" id="answer" autofocus> = ${result}`;
                 } else {
-                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} ${c} = <input type="number" id="answer" autofocus>`;
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} ${c} = <input type="number" inputmode="numeric" id="answer" autofocus>`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
@@ -499,11 +499,11 @@
                 let questionHTML = '';
                 
                 if (unknownPosition === 0) {
-                    questionHTML = `<input type="number" id="answer" autofocus> ${symbol} ${b} = ${result}`;
+                    questionHTML = `<input type="number" inputmode="numeric" id="answer" autofocus> ${symbol} ${b} = ${result}`;
                 } else if (unknownPosition === 1) {
-                    questionHTML = `${a} ${symbol} <input type="number" id="answer" autofocus> = ${result}`;
+                    questionHTML = `${a} ${symbol} <input type="number" inputmode="numeric" id="answer" autofocus> = ${result}`;
                 } else {
-                    questionHTML = `${a} ${symbol} ${b} = <input type="number" id="answer" autofocus>`;
+                    questionHTML = `${a} ${symbol} ${b} = <input type="number" inputmode="numeric" id="answer" autofocus>`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
