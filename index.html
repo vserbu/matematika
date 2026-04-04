@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematika za školarce</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .level-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .level-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 25px;
+            font-size: 1.5em;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .level-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .progress {
+            background: #f0f0f0;
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .question {
+            font-size: 3em;
+            text-align: center;
+            margin: 40px 0;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .question input {
+            width: 100px;
+            font-size: 1em;
+            text-align: center;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: bold;
+            background: #f9f9ff;
+        }
+
+        .question input:focus {
+            outline: none;
+            border-color: #764ba2;
+            background: white;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            border-radius: 15px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 2.5em;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .correct {
+            color: #38ef7d;
+        }
+
+        .incorrect {
+            color: #ff6b6b;
+        }
+
+        .results-screen {
+            display: none;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 2em;
+            margin: 30px 0;
+            color: #667eea;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .log-table th, .log-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .log-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .log-table tr:nth-child(even) {
+            background: #f9f9ff;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            border-radius: 15px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            font-weight: bold;
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .question {
+                font-size: 2em;
+            }
+            
+            .question input {
+                width: 80px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Level Selection Screen -->
+        <div id="levelSelection" class="level-selection">
+            <h1>🎓 Matematika 🎓</h1>
+            <button class="level-btn" onclick="startGame(1)">
+                Nivo 1: Brojevi do 10
+            </button>
+            <button class="level-btn" onclick="startGame(2)">
+                Nivo 2: Brojevi 10-20
+            </button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="game-screen">
+            <h1 id="levelTitle">Nivo 1: Do 10</h1>
+            <div class="progress">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+            <div id="question" class="question"></div>
+            <button id="submitBtn" class="btn-submit" onclick="checkAnswer()">Provjeri</button>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="results-screen">
+            <h1>🎉 Rezultati 🎉</h1>
+            <div id="score" class="score"></div>
+            <div style="overflow-x: auto;">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Zadatak</th>
+                            <th>Tvoj odgovor</th>
+                            <th>Točan odgovor</th>
+                            <th>Rezultat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn-restart" onclick="restartGame()">Nova vježba</button>
+            <button class="btn-restart" onclick="backToLevels()">Natrag na nivoe</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let totalQuestions = 10;
+        let score = 0;
+        let sessionLog = [];
+        let currentTask = {};
+
+        function startGame(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            sessionLog = [];
+            
+            document.getElementById('levelSelection').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('resultsScreen').style.display = 'none';
+            
+            if (level === 1) {
+                document.getElementById('levelTitle').textContent = 'Nivo 1: Do 10';
+            } else {
+                document.getElementById('levelTitle').textContent = 'Nivo 2: Brojevi 10-20';
+            }
+            
+            nextQuestion();
+        }
+
+        function generateQuestion() {
+            const operation = Math.random() < 0.5 ? 'add' : 'subtract';
+            const unknownPosition = Math.floor(Math.random() * 3); // 0: first, 1: second, 2: result
+            
+            let a, b, result;
+            
+            if (currentLevel === 1) {
+                // Level 1: Numbers 0-10, results max 10
+                if (operation === 'add') {
+                    result = Math.floor(Math.random() * 11); // 0-10
+                    a = Math.floor(Math.random() * (result + 1));
+                    b = result - a;
+                } else {
+                    a = Math.floor(Math.random() * 11); // 0-10
+                    b = Math.floor(Math.random() * (a + 1));
+                    result = a - b;
+                }
+            } else {
+                // Level 2: Numbers 10-20, at least one number must be >= 10
+                if (operation === 'add') {
+                    // Result between 10-20
+                    result = 10 + Math.floor(Math.random() * 11); // 10-20
+                    // Make sure at least one operand is >= 10
+                    if (Math.random() < 0.5) {
+                        a = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
+                        b = result - a;
+                    } else {
+                        b = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
+                        a = result - b;
+                    }
+                } else {
+                    // Minuend between 10-20
+                    a = 10 + Math.floor(Math.random() * 11); // 10-20
+                    b = Math.floor(Math.random() * (a - 9)) + 1; // Ensure result >= 0 and subtrahend > 0
+                    result = a - b;
+                }
+            }
+            
+            return {
+                operation: operation,
+                a: a,
+                b: b,
+                result: result,
+                unknownPosition: unknownPosition,
+                correctAnswer: unknownPosition === 0 ? a : (unknownPosition === 1 ? b : result)
+            };
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                showResults();
+                return;
+            }
+            
+            currentTask = generateQuestion();
+            currentQuestion++;
+            
+            updateProgress();
+            displayQuestion();
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function updateProgress() {
+            const percentage = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function displayQuestion() {
+            const { operation, a, b, result, unknownPosition } = currentTask;
+            const symbol = operation === 'add' ? '+' : '−';
+            
+            let questionHTML = '';
+            
+            if (unknownPosition === 0) {
+                questionHTML = `<input type="number" id="answer" autofocus> ${symbol} ${b} = ${result}`;
+            } else if (unknownPosition === 1) {
+                questionHTML = `${a} ${symbol} <input type="number" id="answer" autofocus> = ${result}`;
+            } else {
+                questionHTML = `${a} ${symbol} ${b} = <input type="number" id="answer" autofocus>`;
+            }
+            
+            document.getElementById('question').innerHTML = questionHTML;
+            
+            // Add enter key support
+            document.getElementById('answer').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const correctAnswer = currentTask.correctAnswer;
+            
+            if (isNaN(userAnswer)) {
+                return;
+            }
+            
+            const isCorrect = userAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Log the question
+            const { operation, a, b, result, unknownPosition } = currentTask;
+            const symbol = operation === 'add' ? '+' : '−';
+            let questionText = '';
+            
+            if (unknownPosition === 0) {
+                questionText = `? ${symbol} ${b} = ${result}`;
+            } else if (unknownPosition === 1) {
+                questionText = `${a} ${symbol} ? = ${result}`;
+            } else {
+                questionText = `${a} ${symbol} ${b} = ?`;
+            }
+            
+            sessionLog.push({
+                question: questionText,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                isCorrect: isCorrect
+            });
+            
+            // Show feedback
+            const feedbackDiv = document.getElementById('feedback');
+            if (isCorrect) {
+                feedbackDiv.innerHTML = '<div class="emoji">😊</div><div class="correct">Točno!</div>';
+            } else {
+                feedbackDiv.innerHTML = `<div class="emoji">😢</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
+            }
+            
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function showResults() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+            
+            const percentage = Math.round((score / totalQuestions) * 100);
+            document.getElementById('score').innerHTML = `
+                Tvoj rezultat: ${score}/${totalQuestions} (${percentage}%)
+                ${percentage === 100 ? '<br>🌟 Savršeno! 🌟' : percentage >= 70 ? '<br>👍 Odlično!' : '<br>💪 Vježbaj još!'}
+            `;
+            
+            // Fill the log table
+            const tbody = document.getElementById('logTableBody');
+            tbody.innerHTML = '';
+            
+            sessionLog.forEach((log, index) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = log.question;
+                row.insertCell(2).textContent = log.userAnswer;
+                row.insertCell(3).textContent = log.correctAnswer;
+                const resultCell = row.insertCell(4);
+                resultCell.textContent = log.isCorrect ? '✓' : '✗';
+                resultCell.style.color = log.isCorrect ? '#38ef7d' : '#ff6b6b';
+                resultCell.style.fontWeight = 'bold';
+                resultCell.style.fontSize = '1.5em';
+            });
+        }
+
+        function restartGame() {
+            startGame(currentLevel);
+        }
+
+        function backToLevels() {
+            document.getElementById('resultsScreen').style.display = 'none';
+            document.getElementById('levelSelection').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
