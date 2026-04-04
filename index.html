@@ -43,6 +43,13 @@
             font-size: 2.5em;
         }
 
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+        }
+
         .level-selection {
             display: flex;
             flex-direction: column;
@@ -82,6 +89,17 @@
             overflow: hidden;
         }
 
+        @media (max-width: 768px) {
+            .progress {
+                margin-bottom: 15px;
+                height: 15px;
+            }
+            
+            .container {
+                padding: 20px 15px;
+            }
+        }
+
         .progress-bar {
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             height: 100%;
@@ -95,6 +113,13 @@
             margin: 40px 0;
             color: #333;
             font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .question {
+                font-size: 2em;
+                margin: 20px 0 10px 0;
+            }
         }
 
         .question input {
@@ -124,6 +149,14 @@
             margin: 20px auto;
         }
 
+        @media (max-width: 768px) {
+            .custom-keyboard {
+                gap: 8px;
+                max-width: 260px;
+                margin: 10px auto;
+            }
+        }
+
         /* Hide custom keyboard on desktop */
         @media (min-width: 768px) {
             .custom-keyboard {
@@ -146,6 +179,13 @@
             font-weight: bold;
             transition: all 0.1s;
             user-select: none;
+        }
+
+        @media (max-width: 768px) {
+            .key-btn {
+                padding: 15px;
+                font-size: 1.5em;
+            }
         }
 
         .key-btn:active {
@@ -181,6 +221,14 @@
             transition: transform 0.2s;
         }
 
+        @media (max-width: 768px) {
+            .btn-submit {
+                padding: 15px 40px;
+                font-size: 1.3em;
+                margin: 15px auto;
+            }
+        }
+
         .btn-submit:hover {
             transform: scale(1.05);
         }
@@ -199,6 +247,14 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .feedback {
+                font-size: 1.5em;
+                min-height: 50px;
+                margin: 10px 0;
+            }
         }
 
         .emoji {
