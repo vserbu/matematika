@@ -239,6 +239,12 @@
             <button class="level-btn" onclick="startGame(2)">
                 Nivo 2: Brojevi 10-20
             </button>
+            <button class="level-btn" onclick="startGame(3)">
+                Nivo 3: Brojevi do 20
+            </button>
+            <button class="level-btn" onclick="startGame(4)">
+                Nivo 4: Tri broja do 20
+            </button>
         </div>
 
         <!-- Game Screen -->
@@ -284,6 +290,62 @@
         let sessionLog = [];
         let currentTask = {};
 
+        function generateThreeNumberQuestion() {
+            // Generate three-number operation: a op1 b op2 c = result
+            // Operations can be + or -
+            // All intermediate and final results must be 0-20
+            
+            const op1 = Math.random() < 0.5 ? 'add' : 'subtract';
+            const op2 = Math.random() < 0.5 ? 'add' : 'subtract';
+            const unknownPosition = Math.floor(Math.random() * 4); // 0: a, 1: b, 2: c, 3: result
+            
+            let a, b, c, intermediate, result;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            // Generate valid numbers
+            do {
+                a = Math.floor(Math.random() * 21); // 0-20
+                b = Math.floor(Math.random() * 21); // 0-20
+                c = Math.floor(Math.random() * 21); // 0-20
+                
+                // Calculate intermediate and final result
+                intermediate = op1 === 'add' ? a + b : a - b;
+                result = op2 === 'add' ? intermediate + c : intermediate - c;
+                
+                attempts++;
+                if (attempts > maxAttempts) {
+                    // Fallback to simple valid case
+                    a = 10;
+                    b = 5;
+                    c = 3;
+                    intermediate = op1 === 'add' ? 15 : 5;
+                    result = op2 === 'add' ? intermediate + c : intermediate - c;
+                    break;
+                }
+            } while (intermediate < 0 || intermediate > 20 || result < 0 || result > 20);
+            
+            let correctAnswer;
+            switch(unknownPosition) {
+                case 0: correctAnswer = a; break;
+                case 1: correctAnswer = b; break;
+                case 2: correctAnswer = c; break;
+                case 3: correctAnswer = result; break;
+            }
+            
+            return {
+                threeNumbers: true,
+                operation1: op1,
+                operation2: op2,
+                a: a,
+                b: b,
+                c: c,
+                result: result,
+                unknownPosition: unknownPosition,
+                correctAnswer: correctAnswer
+            };
+        }
+
         function startGame(level) {
             currentLevel = level;
             currentQuestion = 0;
@@ -296,14 +358,22 @@
             
             if (level === 1) {
                 document.getElementById('levelTitle').textContent = 'Nivo 1: Do 10';
-            } else {
+            } else if (level === 2) {
                 document.getElementById('levelTitle').textContent = 'Nivo 2: Brojevi 10-20';
+            } else if (level === 3) {
+                document.getElementById('levelTitle').textContent = 'Nivo 3: Brojevi do 20';
+            } else {
+                document.getElementById('levelTitle').textContent = 'Nivo 4: Tri broja do 20';
             }
             
             nextQuestion();
         }
 
         function generateQuestion() {
+            if (currentLevel === 4) {
+                return generateThreeNumberQuestion();
+            }
+            
             const operation = Math.random() < 0.5 ? 'add' : 'subtract';
             const unknownPosition = Math.floor(Math.random() * 3); // 0: first, 1: second, 2: result
             
@@ -320,7 +390,7 @@
                     b = Math.floor(Math.random() * (a + 1));
                     result = a - b;
                 }
-            } else {
+            } else if (currentLevel === 2) {
                 // Level 2: Numbers 10-20, at least one number must be >= 10
                 if (operation === 'add') {
                     // Result between 10-20
@@ -338,6 +408,32 @@
                     a = 10 + Math.floor(Math.random() * 11); // 10-20
                     b = Math.floor(Math.random() * (a - 9)) + 1; // Ensure result >= 0 and subtrahend > 0
                     result = a - b;
+                }
+            } else {
+                // Level 3: Crossing tens with numbers below 10
+                if (operation === 'add') {
+                    // Result between 11-20 (crossing the tens barrier)
+                    result = 11 + Math.floor(Math.random() * 10); // 11-20
+                    // Both operands should be below 10, but sum crosses 10
+                    a = Math.floor(Math.random() * 10); // 0-9
+                    b = result - a;
+                    // If b is >= 10, swap to ensure both are single digits
+                    if (b >= 10) {
+                        let temp = a;
+                        a = b;
+                        b = temp;
+                    }
+                    // Ensure at least one number is > 5 to make crossing tens likely
+                    if (a + b <= 10) {
+                        a = 6 + Math.floor(Math.random() * 4); // 6-9
+                        b = (11 + Math.floor(Math.random() * 10)) - a; // ensure result 11-20
+                    }
+                } else {
+                    // Minuend between 11-20, subtrahend makes result cross back below 10
+                    a = 11 + Math.floor(Math.random() * 10); // 11-20
+                    // Result should be < 10
+                    result = Math.floor(Math.random() * 10); // 0-9
+                    b = a - result;
                 }
             }
             
@@ -372,20 +468,40 @@
         }
 
         function displayQuestion() {
-            const { operation, a, b, result, unknownPosition } = currentTask;
-            const symbol = operation === 'add' ? '+' : '−';
-            
-            let questionHTML = '';
-            
-            if (unknownPosition === 0) {
-                questionHTML = `<input type="number" id="answer" autofocus> ${symbol} ${b} = ${result}`;
-            } else if (unknownPosition === 1) {
-                questionHTML = `${a} ${symbol} <input type="number" id="answer" autofocus> = ${result}`;
+            if (currentTask.threeNumbers) {
+                const { operation1, operation2, a, b, c, result, unknownPosition } = currentTask;
+                const symbol1 = operation1 === 'add' ? '+' : '−';
+                const symbol2 = operation2 === 'add' ? '+' : '−';
+                
+                let questionHTML = '';
+                
+                if (unknownPosition === 0) {
+                    questionHTML = `<input type="number" id="answer" autofocus> ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
+                } else if (unknownPosition === 1) {
+                    questionHTML = `${a} ${symbol1} <input type="number" id="answer" autofocus> ${symbol2} ${c} = ${result}`;
+                } else if (unknownPosition === 2) {
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} <input type="number" id="answer" autofocus> = ${result}`;
+                } else {
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} ${c} = <input type="number" id="answer" autofocus>`;
+                }
+                
+                document.getElementById('question').innerHTML = questionHTML;
             } else {
-                questionHTML = `${a} ${symbol} ${b} = <input type="number" id="answer" autofocus>`;
+                const { operation, a, b, result, unknownPosition } = currentTask;
+                const symbol = operation === 'add' ? '+' : '−';
+                
+                let questionHTML = '';
+                
+                if (unknownPosition === 0) {
+                    questionHTML = `<input type="number" id="answer" autofocus> ${symbol} ${b} = ${result}`;
+                } else if (unknownPosition === 1) {
+                    questionHTML = `${a} ${symbol} <input type="number" id="answer" autofocus> = ${result}`;
+                } else {
+                    questionHTML = `${a} ${symbol} ${b} = <input type="number" id="answer" autofocus>`;
+                }
+                
+                document.getElementById('question').innerHTML = questionHTML;
             }
-            
-            document.getElementById('question').innerHTML = questionHTML;
             
             // Add enter key support
             document.getElementById('answer').addEventListener('keypress', function(e) {
@@ -410,16 +526,33 @@
             }
             
             // Log the question
-            const { operation, a, b, result, unknownPosition } = currentTask;
-            const symbol = operation === 'add' ? '+' : '−';
             let questionText = '';
             
-            if (unknownPosition === 0) {
-                questionText = `? ${symbol} ${b} = ${result}`;
-            } else if (unknownPosition === 1) {
-                questionText = `${a} ${symbol} ? = ${result}`;
+            if (currentTask.threeNumbers) {
+                const { operation1, operation2, a, b, c, result, unknownPosition } = currentTask;
+                const symbol1 = operation1 === 'add' ? '+' : '−';
+                const symbol2 = operation2 === 'add' ? '+' : '−';
+                
+                if (unknownPosition === 0) {
+                    questionText = `? ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
+                } else if (unknownPosition === 1) {
+                    questionText = `${a} ${symbol1} ? ${symbol2} ${c} = ${result}`;
+                } else if (unknownPosition === 2) {
+                    questionText = `${a} ${symbol1} ${b} ${symbol2} ? = ${result}`;
+                } else {
+                    questionText = `${a} ${symbol1} ${b} ${symbol2} ${c} = ?`;
+                }
             } else {
-                questionText = `${a} ${symbol} ${b} = ?`;
+                const { operation, a, b, result, unknownPosition } = currentTask;
+                const symbol = operation === 'add' ? '+' : '−';
+                
+                if (unknownPosition === 0) {
+                    questionText = `? ${symbol} ${b} = ${result}`;
+                } else if (unknownPosition === 1) {
+                    questionText = `${a} ${symbol} ? = ${result}`;
+                } else {
+                    questionText = `${a} ${symbol} ${b} = ?`;
+                }
             }
             
             sessionLog.push({
