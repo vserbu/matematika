@@ -1,10 +1,10 @@
 const CACHE_NAME = 'matematika-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/matematika/',
+  '/matematika/index.html',
+  '/matematika/manifest.json',
+  '/matematika/icon-192.png',
+  '/matematika/icon-512.png'
 ];
 
 // Install service worker and cache files
