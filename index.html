@@ -106,12 +106,65 @@
             padding: 10px;
             font-weight: bold;
             background: #f9f9ff;
+            caret-color: transparent;
+            cursor: pointer;
         }
 
         .question input:focus {
             outline: none;
             border-color: #764ba2;
             background: white;
+        }
+
+        .custom-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        /* Hide custom keyboard on desktop */
+        @media (min-width: 768px) {
+            .custom-keyboard {
+                display: none;
+            }
+            
+            .question input {
+                caret-color: auto;
+                cursor: text;
+            }
+        }
+
+        .key-btn {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            padding: 20px;
+            font-size: 1.8em;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .key-btn:active {
+            background: #e0e0e0;
+            transform: scale(0.95);
+        }
+
+        .key-btn.delete {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff5252;
+        }
+
+        .key-btn.delete:active {
+            background: #ff5252;
+        }
+
+        .key-btn.zero {
+            grid-column: span 2;
         }
 
         .btn-submit {
@@ -260,6 +313,22 @@
                 <div id="progressBar" class="progress-bar" style="width: 0%"></div>
             </div>
             <div id="question" class="question"></div>
+            
+            <!-- Custom Keyboard -->
+            <div class="custom-keyboard">
+                <button class="key-btn" onclick="addDigit(1)">1</button>
+                <button class="key-btn" onclick="addDigit(2)">2</button>
+                <button class="key-btn" onclick="addDigit(3)">3</button>
+                <button class="key-btn" onclick="addDigit(4)">4</button>
+                <button class="key-btn" onclick="addDigit(5)">5</button>
+                <button class="key-btn" onclick="addDigit(6)">6</button>
+                <button class="key-btn" onclick="addDigit(7)">7</button>
+                <button class="key-btn" onclick="addDigit(8)">8</button>
+                <button class="key-btn" onclick="addDigit(9)">9</button>
+                <button class="key-btn delete" onclick="deleteDigit()">⌫</button>
+                <button class="key-btn zero" onclick="addDigit(0)">0</button>
+            </div>
+            
             <button id="submitBtn" class="btn-submit" onclick="checkAnswer()">Provjeri</button>
             <div id="feedback" class="feedback"></div>
         </div>
@@ -295,6 +364,24 @@
         let score = 0;
         let sessionLog = [];
         let currentTask = {};
+
+        function addDigit(digit) {
+            const input = document.getElementById('answer');
+            if (input) {
+                const currentValue = input.value;
+                // Limit to 2 digits max
+                if (currentValue.length < 2) {
+                    input.value = currentValue + digit;
+                }
+            }
+        }
+
+        function deleteDigit() {
+            const input = document.getElementById('answer');
+            if (input) {
+                input.value = input.value.slice(0, -1);
+            }
+        }
 
         function generateThreeNumberQuestion() {
             // Generate three-number operation: a op1 b op2 c = result
@@ -474,21 +561,24 @@
         }
 
         function displayQuestion() {
+            const isMobile = window.innerWidth < 768;
+            
             if (currentTask.threeNumbers) {
                 const { operation1, operation2, a, b, c, result, unknownPosition } = currentTask;
                 const symbol1 = operation1 === 'add' ? '+' : '−';
                 const symbol2 = operation2 === 'add' ? '+' : '−';
                 
                 let questionHTML = '';
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number" autofocus';
                 
                 if (unknownPosition === 0) {
-                    questionHTML = `<input type="tel" inputmode="numeric" id="answer" autofocus> ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
+                    questionHTML = `<input ${inputAttrs} id="answer"> ${symbol1} ${b} ${symbol2} ${c} = ${result}`;
                 } else if (unknownPosition === 1) {
-                    questionHTML = `${a} ${symbol1} <input type="tel" inputmode="numeric" id="answer" autofocus> ${symbol2} ${c} = ${result}`;
+                    questionHTML = `${a} ${symbol1} <input ${inputAttrs} id="answer"> ${symbol2} ${c} = ${result}`;
                 } else if (unknownPosition === 2) {
-                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} <input type="tel" inputmode="numeric" id="answer" autofocus> = ${result}`;
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} <input ${inputAttrs} id="answer"> = ${result}`;
                 } else {
-                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} ${c} = <input type="tel" inputmode="numeric" id="answer" autofocus>`;
+                    questionHTML = `${a} ${symbol1} ${b} ${symbol2} ${c} = <input ${inputAttrs} id="answer">`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
@@ -497,24 +587,27 @@
                 const symbol = operation === 'add' ? '+' : '−';
                 
                 let questionHTML = '';
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number" autofocus';
                 
                 if (unknownPosition === 0) {
-                    questionHTML = `<input type="tel" inputmode="numeric" id="answer" autofocus> ${symbol} ${b} = ${result}`;
+                    questionHTML = `<input ${inputAttrs} id="answer"> ${symbol} ${b} = ${result}`;
                 } else if (unknownPosition === 1) {
-                    questionHTML = `${a} ${symbol} <input type="tel" inputmode="numeric" id="answer" autofocus> = ${result}`;
+                    questionHTML = `${a} ${symbol} <input ${inputAttrs} id="answer"> = ${result}`;
                 } else {
-                    questionHTML = `${a} ${symbol} ${b} = <input type="tel" inputmode="numeric" id="answer" autofocus>`;
+                    questionHTML = `${a} ${symbol} ${b} = <input ${inputAttrs} id="answer">`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
             }
             
-            // Add enter key support
-            document.getElementById('answer').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    checkAnswer();
-                }
-            });
+            // Add enter key support for desktop
+            if (!isMobile) {
+                document.getElementById('answer').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkAnswer();
+                    }
+                });
+            }
         }
 
         function checkAnswer() {
