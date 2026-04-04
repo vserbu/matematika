@@ -262,6 +262,16 @@
             margin-bottom: 10px;
         }
 
+        @media (max-width: 768px) {
+            .emoji {
+                font-size: 2.5em;
+            }
+            
+            .emoji.large {
+                font-size: 4em;
+            }
+        }
+
         .correct {
             color: #38ef7d;
         }
@@ -720,24 +730,27 @@
             // Show feedback
             const feedbackDiv = document.getElementById('feedback');
             if (isCorrect) {
-                feedbackDiv.innerHTML = '<div class="emoji">😊</div><div class="correct">Točno!</div>';
+                feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
             } else {
-                feedbackDiv.innerHTML = `<div class="emoji">😢</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
+                feedbackDiv.innerHTML = `<div class="emoji large">😢</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
             }
             
             document.getElementById('submitBtn').disabled = true;
             
-            // Hide keyboard on mobile to show feedback
+            // Hide keyboard and submit button on mobile to show feedback
             const keyboard = document.querySelector('.custom-keyboard');
+            const submitBtn = document.getElementById('submitBtn');
             if (keyboard && window.innerWidth < 768) {
                 keyboard.style.display = 'none';
+                submitBtn.style.display = 'none';
             }
             
             // Move to next question after delay
             setTimeout(() => {
-                // Show keyboard again for next question
+                // Show keyboard and submit button again for next question
                 if (keyboard && window.innerWidth < 768) {
                     keyboard.style.display = 'grid';
+                    submitBtn.style.display = 'block';
                 }
                 nextQuestion();
             }, 3000);
