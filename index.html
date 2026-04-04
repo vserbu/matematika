@@ -789,9 +789,22 @@
             document.getElementById('resultsScreen').style.display = 'block';
             
             const percentage = Math.round((score / totalQuestions) * 100);
+            const wrongAnswers = totalQuestions - score;
+            let message = '';
+            
+            if (percentage === 100) {
+                message = '<br>🌟 Odlično! 🌟';
+            } else if (wrongAnswers <= 2) {
+                message = '<br>👍 Vrlo dobro!';
+            } else if (wrongAnswers <= 4) {
+                message = '<br>😊 Dobro!';
+            } else {
+                message = '<br>💪 Može to i malo bolje!';
+            }
+            
             document.getElementById('score').innerHTML = `
                 Tvoj rezultat: ${score}/${totalQuestions} (${percentage}%)
-                ${percentage === 100 ? '<br>🌟 Savršeno! 🌟' : percentage >= 70 ? '<br>👍 Odlično!' : '<br>💪 Vježbaj još!'}
+                ${message}
             `;
             
             // Fill the log table
