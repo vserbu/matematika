@@ -434,6 +434,9 @@
             </div>
             <button class="btn-restart" onclick="restartGame()">Nova vježba</button>
             <button class="btn-restart" onclick="backToLevels()">Natrag na nivoe</button>
+            <button class="btn-restart" onclick="downloadWorksheet()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                📄 Preuzmi radni listić (PDF)
+            </button>
         </div>
     </div>
 
@@ -805,6 +808,122 @@
         function backToLevels() {
             document.getElementById('resultsScreen').style.display = 'none';
             document.getElementById('levelSelection').style.display = 'flex';
+        }
+
+        function downloadWorksheet() {
+            // Create a simple worksheet in a new window for printing
+            const win = window.open('', '_blank');
+            const levelName = currentLevel === 1 ? 'Nivo 1: Do 10' : 
+                            currentLevel === 2 ? 'Nivo 2: Brojevi 10-20' : 
+                            currentLevel === 3 ? 'Nivo 3: Brojevi do 20' : 
+                            'Nivo 4: Tri broja do 20';
+            
+            let html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Radni listić - ${levelName}</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .info {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .question-item {
+            margin: 25px 0;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9ff;
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .question-number {
+            color: #667eea;
+            margin-right: 15px;
+            min-width: 40px;
+        }
+        .question-text {
+            flex: 1;
+        }
+        .answer-box {
+            width: 80px;
+            height: 40px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            margin: 0 10px;
+            display: inline-block;
+            background: white;
+        }
+        .print-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            font-weight: bold;
+        }
+        .print-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 Radni listić - ${levelName} 🎓</h1>
+    <div class="info">
+        <div>Ime: _______________________</div>
+        <div>Datum: _______________________</div>
+    </div>
+    <div style="margin: 30px 0;">
+`;
+
+            sessionLog.forEach((log, index) => {
+                // Replace ? with answer box
+                const questionWithBox = log.question.replace('?', '<span class="answer-box"></span>');
+                html += `
+                <div class="question-item">
+                    <span class="question-number">${index + 1}.</span>
+                    <span class="question-text">${questionWithBox}</span>
+                </div>
+                `;
+            });
+
+            html += `
+    </div>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Ispiši radni listić</button>
+    <div style="text-align: center; margin-top: 50px; color: #999; font-size: 12px;" class="no-print">
+        Napravljeno na vserbu.github.io/matematika
+    </div>
+</body>
+</html>
+            `;
+            
+            win.document.write(html);
+            win.document.close();
         }
 
         // Register service worker for PWA
