@@ -727,8 +727,18 @@
             
             document.getElementById('submitBtn').disabled = true;
             
+            // Hide keyboard on mobile to show feedback
+            const keyboard = document.querySelector('.custom-keyboard');
+            if (keyboard && window.innerWidth < 768) {
+                keyboard.style.display = 'none';
+            }
+            
             // Move to next question after delay
             setTimeout(() => {
+                // Show keyboard again for next question
+                if (keyboard && window.innerWidth < 768) {
+                    keyboard.style.display = 'grid';
+                }
                 nextQuestion();
             }, 2000);
         }
