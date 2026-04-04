@@ -270,6 +270,20 @@
             .emoji.large {
                 font-size: 4em;
             }
+            
+            .emoji.shake {
+                animation: headShake 0.6s ease-in-out;
+            }
+        }
+
+        @keyframes headShake {
+            0% { transform: translateX(0); }
+            15% { transform: translateX(-15px) rotate(-6deg); }
+            30% { transform: translateX(10px) rotate(6deg); }
+            45% { transform: translateX(-10px) rotate(-4deg); }
+            60% { transform: translateX(6px) rotate(3deg); }
+            75% { transform: translateX(-4px) rotate(-2deg); }
+            100% { transform: translateX(0); }
         }
 
         .correct {
@@ -732,7 +746,7 @@
             if (isCorrect) {
                 feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
             } else {
-                feedbackDiv.innerHTML = `<div class="emoji large">😢</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
+                feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
             }
             
             document.getElementById('submitBtn').disabled = true;
