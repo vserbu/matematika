@@ -326,6 +326,14 @@
             background: #f9f9ff;
         }
 
+        /* Hide correct answer column on mobile */
+        @media (max-width: 768px) {
+            .log-table th:nth-child(4),
+            .log-table td:nth-child(4) {
+                display: none;
+            }
+        }
+
         .btn-restart {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -458,6 +466,9 @@
         let score = 0;
         let sessionLog = [];
         let currentTask = {};
+        let incorrectTasks = []; // Store tasks that were answered incorrectly
+        let retryMode = false; // Flag to indicate if we're in retry mode
+        let retryTasks = []; // Tasks to retry in current session
 
         function addDigit(digit) {
             const input = document.getElementById('answer');
@@ -486,6 +497,9 @@
             const op2 = Math.random() < 0.5 ? 'add' : 'subtract';
             const unknownPosition = Math.floor(Math.random() * 4); // 0: a, 1: b, 2: c, 3: result
             
+            // 50% chance to avoid zero (except for 10 and 20)
+            const avoidZero = Math.random() < 0.5;
+            
             let a, b, c, intermediate, result;
             let attempts = 0;
             const maxAttempts = 100;
@@ -510,7 +524,23 @@
                     result = op2 === 'add' ? intermediate + c : intermediate - c;
                     break;
                 }
-            } while (intermediate < 0 || intermediate > 20 || result < 0 || result > 20);
+                
+                // Check validity
+                const isValid = intermediate >= 0 && intermediate <= 20 && result >= 0 && result <= 20;
+                
+                if (isValid) {
+                    // If we want to avoid zero, check if any number is 0 (except 10, 20)
+                    if (avoidZero) {
+                        const hasZero = (a === 0 && a !== 10 && a !== 20) || 
+                                      (b === 0 && b !== 10 && b !== 20) || 
+                                      (c === 0 && c !== 10 && c !== 20) ||
+                                      (result === 0 && result !== 10 && result !== 20);
+                        if (!hasZero) break; // Found valid task without zero
+                    } else {
+                        break; // Accept any valid task including zeros
+                    }
+                }
+            } while (attempts < maxAttempts);
             
             let correctAnswer;
             switch(unknownPosition) {
@@ -538,6 +568,43 @@
             currentQuestion = 0;
             score = 0;
             sessionLog = [];
+            retryMode = false;
+            retryTasks = [];
+            
+            // Calculate how many new tasks vs incorrect tasks
+            const numIncorrect = incorrectTasks.filter(t => {
+                // Only include incorrect tasks from the same level
+                if (t.threeNumbers && level === 4) return true;
+                if (!t.threeNumbers && 
+                    ((level === 1 && t.result <= 10 && t.a <= 10 && t.b <= 10) ||
+                     (level === 2 && (t.a >= 10 || t.b >= 10 || t.result >= 10)) ||
+                     (level === 3))) return true;
+                return false;
+            }).length;
+            
+            const numIncorrectToInclude = Math.min(numIncorrect, 5); // Max 5 incorrect tasks
+            const numNewTasks = 10 - numIncorrectToInclude;
+            
+            // If we have incorrect tasks to include, set up mixed mode
+            if (numIncorrectToInclude > 0) {
+                retryMode = true;
+                // Take the first N incorrect tasks for this level
+                const incorrectForLevel = incorrectTasks.filter(t => {
+                    if (t.threeNumbers && level === 4) return true;
+                    if (!t.threeNumbers && 
+                        ((level === 1 && t.result <= 10 && t.a <= 10 && t.b <= 10) ||
+                         (level === 2 && (t.a >= 10 || t.b >= 10 || t.result >= 10)) ||
+                         (level === 3))) return true;
+                    return false;
+                }).slice(0, numIncorrectToInclude);
+                
+                retryTasks = [...incorrectForLevel];
+                
+                // Clear those tasks from incorrectTasks
+                incorrectTasks = incorrectTasks.filter(t => !retryTasks.includes(t));
+            }
+            
+            totalQuestions = 10;
             
             document.getElementById('levelSelection').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
@@ -564,65 +631,84 @@
             const operation = Math.random() < 0.5 ? 'add' : 'subtract';
             const unknownPosition = Math.floor(Math.random() * 3); // 0: first, 1: second, 2: result
             
-            let a, b, result;
+            // 50% chance to avoid zero (except for 10 and 20)
+            const avoidZero = Math.random() < 0.5;
             
-            if (currentLevel === 1) {
-                // Level 1: Numbers 0-10, results max 10
-                if (operation === 'add') {
-                    result = Math.floor(Math.random() * 11); // 0-10
-                    a = Math.floor(Math.random() * (result + 1));
-                    b = result - a;
-                } else {
-                    a = Math.floor(Math.random() * 11); // 0-10
-                    b = Math.floor(Math.random() * (a + 1));
-                    result = a - b;
-                }
-            } else if (currentLevel === 2) {
-                // Level 2: Numbers 10-20, at least one number must be >= 10
-                if (operation === 'add') {
-                    // Result between 10-20
-                    result = 10 + Math.floor(Math.random() * 11); // 10-20
-                    // Make sure at least one operand is >= 10
-                    if (Math.random() < 0.5) {
-                        a = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
+            let a, b, result;
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            do {
+                if (currentLevel === 1) {
+                    // Level 1: Numbers 0-10, results max 10
+                    if (operation === 'add') {
+                        result = Math.floor(Math.random() * 11); // 0-10
+                        a = Math.floor(Math.random() * (result + 1));
                         b = result - a;
                     } else {
-                        b = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
-                        a = result - b;
+                        a = Math.floor(Math.random() * 11); // 0-10
+                        b = Math.floor(Math.random() * (a + 1));
+                        result = a - b;
+                    }
+                } else if (currentLevel === 2) {
+                    // Level 2: Numbers 10-20, at least one number must be >= 10
+                    if (operation === 'add') {
+                        // Result between 10-20
+                        result = 10 + Math.floor(Math.random() * 11); // 10-20
+                        // Make sure at least one operand is >= 10
+                        if (Math.random() < 0.5) {
+                            a = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
+                            b = result - a;
+                        } else {
+                            b = 10 + Math.floor(Math.random() * (result - 9)); // at least 10
+                            a = result - b;
+                        }
+                    } else {
+                        // Minuend between 10-20
+                        a = 10 + Math.floor(Math.random() * 11); // 10-20
+                        b = Math.floor(Math.random() * (a - 9)) + 1; // Ensure result >= 0 and subtrahend > 0
+                        result = a - b;
                     }
                 } else {
-                    // Minuend between 10-20
-                    a = 10 + Math.floor(Math.random() * 11); // 10-20
-                    b = Math.floor(Math.random() * (a - 9)) + 1; // Ensure result >= 0 and subtrahend > 0
-                    result = a - b;
+                    // Level 3: Crossing tens with numbers below 10
+                    if (operation === 'add') {
+                        // Result between 11-20 (crossing the tens barrier)
+                        result = 11 + Math.floor(Math.random() * 10); // 11-20
+                        // Both operands should be below 10, but sum crosses 10
+                        a = Math.floor(Math.random() * 10); // 0-9
+                        b = result - a;
+                        // If b is >= 10, swap to ensure both are single digits
+                        if (b >= 10) {
+                            let temp = a;
+                            a = b;
+                            b = temp;
+                        }
+                        // Ensure at least one number is > 5 to make crossing tens likely
+                        if (a + b <= 10) {
+                            a = 6 + Math.floor(Math.random() * 4); // 6-9
+                            b = (11 + Math.floor(Math.random() * 10)) - a; // ensure result 11-20
+                        }
+                    } else {
+                        // Minuend between 11-20, subtrahend makes result cross back below 10
+                        a = 11 + Math.floor(Math.random() * 10); // 11-20
+                        // Result should be < 10
+                        result = Math.floor(Math.random() * 10); // 0-9
+                        b = a - result;
+                    }
                 }
-            } else {
-                // Level 3: Crossing tens with numbers below 10
-                if (operation === 'add') {
-                    // Result between 11-20 (crossing the tens barrier)
-                    result = 11 + Math.floor(Math.random() * 10); // 11-20
-                    // Both operands should be below 10, but sum crosses 10
-                    a = Math.floor(Math.random() * 10); // 0-9
-                    b = result - a;
-                    // If b is >= 10, swap to ensure both are single digits
-                    if (b >= 10) {
-                        let temp = a;
-                        a = b;
-                        b = temp;
-                    }
-                    // Ensure at least one number is > 5 to make crossing tens likely
-                    if (a + b <= 10) {
-                        a = 6 + Math.floor(Math.random() * 4); // 6-9
-                        b = (11 + Math.floor(Math.random() * 10)) - a; // ensure result 11-20
-                    }
+                
+                attempts++;
+                
+                // If we want to avoid zero, check if any number is 0 (except 10, 20)
+                if (avoidZero) {
+                    const hasZero = (a === 0 && a !== 10 && a !== 20) || 
+                                  (b === 0 && b !== 10 && b !== 20) || 
+                                  (result === 0 && result !== 10 && result !== 20);
+                    if (!hasZero || attempts >= maxAttempts) break;
                 } else {
-                    // Minuend between 11-20, subtrahend makes result cross back below 10
-                    a = 11 + Math.floor(Math.random() * 10); // 11-20
-                    // Result should be < 10
-                    result = Math.floor(Math.random() * 10); // 0-9
-                    b = a - result;
+                    break; // Accept any task including zeros
                 }
-            }
+            } while (attempts < maxAttempts);
             
             return {
                 operation: operation,
@@ -640,7 +726,17 @@
                 return;
             }
             
-            currentTask = generateQuestion();
+            // In retry mode, randomly mix incorrect tasks with new ones
+            if (retryMode && retryTasks.length > 0 && Math.random() < 0.5) {
+                // Use an incorrect task
+                const randomIndex = Math.floor(Math.random() * retryTasks.length);
+                currentTask = retryTasks[randomIndex];
+                retryTasks.splice(randomIndex, 1); // Remove used task
+            } else {
+                // Generate a new task
+                currentTask = generateQuestion();
+            }
+            
             currentQuestion++;
             
             updateProgress();
@@ -716,6 +812,9 @@
             
             if (isCorrect) {
                 score++;
+            } else {
+                // Store the incorrect task for potential retry
+                incorrectTasks.push({...currentTask});
             }
             
             // Log the question
@@ -826,10 +925,14 @@
         }
 
         function restartGame() {
+            // Don't clear incorrectTasks - we want them for next session
+            totalQuestions = 10; // Reset to default
             startGame(currentLevel);
         }
 
         function backToLevels() {
+            incorrectTasks = []; // Clear incorrect tasks
+            totalQuestions = 10; // Reset to default
             document.getElementById('resultsScreen').style.display = 'none';
             document.getElementById('levelSelection').style.display = 'flex';
         }
