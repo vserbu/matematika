@@ -403,6 +403,9 @@
             <button class="level-btn" onclick="startGame(4)">
                 Nivo 4: Tri broja do 20
             </button>
+            <div style="text-align: center; margin-top: 30px; color: #999; font-size: 0.9em;">
+                verzija 1.0
+            </div>
         </div>
 
         <!-- Game Screen -->
@@ -1057,7 +1060,27 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
-                    .then(reg => console.log('Service Worker registered'))
+                    .then(reg => {
+                        console.log('Service Worker registered');
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            reg.update();
+                        }, 60000); // Check every minute
+                        
+                        // Listen for updates
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available - auto reload
+                                    console.log('Nova verzija dostupna - osvježavam...');
+                                    window.location.reload();
+                                }
+                            });
+                        });
+                    })
                     .catch(err => console.log('Service Worker registration failed'));
             });
         }
