@@ -135,6 +135,17 @@
             cursor: pointer;
         }
 
+        /* Hide number input spinners/arrows */
+        .question input::-webkit-outer-spin-button,
+        .question input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .question input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         .question input:focus {
             outline: none;
             border-color: #764ba2;
@@ -499,7 +510,7 @@
                 Nivo 5: Zbrajanje do 20 (kraći način)
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.6</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.7</a>
             </div>
         </div>
 
@@ -563,6 +574,14 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.7</h3>
+                <ul>
+                    <li>Uklonjene strelice (spinners) iz input polja na desktopu</li>
+                    <li>Poboljšan izgled brojeva u kućicama</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.6</h3>
                 <ul>
