@@ -493,10 +493,13 @@
                 Nivo 3: Brojevi do 20
             </button>
             <button class="level-btn" onclick="startGame(4)">
-                Nivo 4: Tri broja do 20
+                Nivo 4: Zbrajanje do 20 (dulji način)
+            </button>
+            <button class="level-btn" onclick="startGame(5)">
+                Nivo 5: Zbrajanje do 20 (kraći način)
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.1</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.4</a>
             </div>
         </div>
 
@@ -560,6 +563,34 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.4</h3>
+                <ul>
+                    <li>Dodan Nivo 5: Zbrajanje do 20 (kraći način)</li>
+                    <li>1-3 pribrojnika, svi jednoznamenkasti, rezultat 11-20</li>
+                    <li>S bodovanjem i logom rezultata</li>
+                    <li>Nivo 4 promijenjen naziv: "Zbrajanje do 20 (dulji način)"</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.3</h3>
+                <ul>
+                    <li>Nivo 4: Kućice primaju samo jednoznamenkaste brojeve</li>
+                    <li>Automatski prelazak na drugi kvadratić nakon upisa prve znamenke</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.2</h3>
+                <ul>
+                    <li>Nivo 4 promijenjen u "Zbrajanje na dulji način"</li>
+                    <li>Dvostepeni proces: rastavljanje → rezultat</li>
+                    <li>Nema bodovanja - edukativni način rada</li>
+                    <li>Ponovni pokušaj ako dijete pogriješi rastavljanje</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.1</h3>
                 <ul>
@@ -663,97 +694,121 @@
         let incorrectTasks = []; // Store tasks that were answered incorrectly
         let retryMode = false; // Flag to indicate if we're in retry mode
         let retryTasks = []; // Tasks to retry in current session
+        let level4Step = 1; // Track which step in Level 4 (1 = decomposition, 2 = result)
 
         function addDigit(digit) {
-            const input = document.getElementById('answer');
-            if (input) {
-                const currentValue = input.value;
-                // Limit to 2 digits max
-                if (currentValue.length < 2) {
-                    input.value = currentValue + digit;
+            if (currentLevel === 4 && level4Step === 1) {
+                // Level 4 Step 1: Fill answer1 first (one digit only), then answer2 (one digit only)
+                const input1 = document.getElementById('answer1');
+                const input2 = document.getElementById('answer2');
+                
+                if (input1 && input1.value.length === 0) {
+                    input1.value = digit;
+                    // Auto-focus would happen here if we had real inputs, but with readonly we just move on
+                } else if (input2 && input2.value.length === 0) {
+                    input2.value = digit;
+                }
+                // Both filled - ready to check
+            } else {
+                const input = document.getElementById('answer');
+                if (input) {
+                    const currentValue = input.value;
+                    // Limit to 2 digits max
+                    if (currentValue.length < 2) {
+                        input.value = currentValue + digit;
+                    }
                 }
             }
         }
 
         function deleteDigit() {
-            const input = document.getElementById('answer');
-            if (input) {
-                input.value = input.value.slice(0, -1);
+            if (currentLevel === 4 && level4Step === 1) {
+                // Level 4 Step 1: Delete from answer2 first, then answer1
+                const input1 = document.getElementById('answer1');
+                const input2 = document.getElementById('answer2');
+                
+                if (input2 && input2.value.length > 0) {
+                    input2.value = input2.value.slice(0, -1);
+                } else if (input1 && input1.value.length > 0) {
+                    input1.value = input1.value.slice(0, -1);
+                }
+            } else {
+                const input = document.getElementById('answer');
+                if (input) {
+                    input.value = input.value.slice(0, -1);
+                }
             }
         }
 
-        function generateThreeNumberQuestion() {
-            // Generate three-number operation: a op1 b op2 c = result
-            // Operations can be + or -
-            // All intermediate and final results must be 0-20
+        function generateShortAddition() {
+            // Generate addition task for "short way" method
+            // 1-3 addends, all single digit (1-9), result 11-20
             
-            const op1 = Math.random() < 0.5 ? 'add' : 'subtract';
-            const op2 = Math.random() < 0.5 ? 'add' : 'subtract';
-            const unknownPosition = Math.floor(Math.random() * 4); // 0: a, 1: b, 2: c, 3: result
-            
-            // 50% chance to avoid zero (except for 10 and 20)
-            const avoidZero = Math.random() < 0.5;
-            
-            let a, b, c, intermediate, result;
+            const numAddends = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3
+            let addends = [];
+            let result = 0;
             let attempts = 0;
             const maxAttempts = 100;
             
-            // Generate valid numbers
             do {
-                a = Math.floor(Math.random() * 21); // 0-20
-                b = Math.floor(Math.random() * 21); // 0-20
-                c = Math.floor(Math.random() * 21); // 0-20
+                addends = [];
+                result = 0;
                 
-                // Calculate intermediate and final result
-                intermediate = op1 === 'add' ? a + b : a - b;
-                result = op2 === 'add' ? intermediate + c : intermediate - c;
+                for (let i = 0; i < numAddends; i++) {
+                    const num = 1 + Math.floor(Math.random() * 9); // 1-9
+                    addends.push(num);
+                    result += num;
+                }
                 
                 attempts++;
                 if (attempts > maxAttempts) {
-                    // Fallback to simple valid case
-                    a = 10;
-                    b = 5;
-                    c = 3;
-                    intermediate = op1 === 'add' ? 15 : 5;
-                    result = op2 === 'add' ? intermediate + c : intermediate - c;
+                    // Fallback
+                    addends = [7, 8];
+                    result = 15;
                     break;
                 }
-                
-                // Check validity
-                const isValid = intermediate >= 0 && intermediate <= 20 && result >= 0 && result <= 20;
-                
-                if (isValid) {
-                    // If we want to avoid zero, check if any number is 0 (except 10, 20)
-                    if (avoidZero) {
-                        const hasZero = (a === 0 && a !== 10 && a !== 20) || 
-                                      (b === 0 && b !== 10 && b !== 20) || 
-                                      (c === 0 && c !== 10 && c !== 20) ||
-                                      (result === 0 && result !== 10 && result !== 20);
-                        if (!hasZero) break; // Found valid task without zero
-                    } else {
-                        break; // Accept any valid task including zeros
-                    }
-                }
-            } while (attempts < maxAttempts);
-            
-            let correctAnswer;
-            switch(unknownPosition) {
-                case 0: correctAnswer = a; break;
-                case 1: correctAnswer = b; break;
-                case 2: correctAnswer = c; break;
-                case 3: correctAnswer = result; break;
-            }
+            } while (result < 11 || result > 20);
             
             return {
-                threeNumbers: true,
-                operation1: op1,
-                operation2: op2,
+                shortAddition: true,
+                addends: addends,
+                result: result
+            };
+        }
+
+        function generateLongAddition() {
+            // Generate addition task for "long way" method
+            // Both addends must be >= 3 and result > 10
+            
+            let a, b, result;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                a = 3 + Math.floor(Math.random() * 7); // 3-9
+                b = 3 + Math.floor(Math.random() * 7); // 3-9
+                result = a + b;
+                
+                attempts++;
+                if (attempts > maxAttempts) {
+                    a = 5;
+                    b = 7;
+                    result = 12;
+                    break;
+                }
+            } while (result <= 10);
+            
+            // Calculate decomposition: b = part1 + part2 where a + part1 = 10
+            const part1 = 10 - a;
+            const part2 = b - part1;
+            
+            return {
+                longAddition: true,
                 a: a,
                 b: b,
-                c: c,
-                result: result,
-                unknownPosition: unknownPosition,
-                correctAnswer: correctAnswer
+                part1: part1,
+                part2: part2,
+                result: result
             };
         }
 
@@ -764,6 +819,7 @@
             sessionLog = [];
             retryMode = false;
             retryTasks = [];
+            level4Step = 1; // Reset to step 1 for Level 4
             
             // Calculate how many new tasks vs incorrect tasks
             const numIncorrect = incorrectTasks.filter(t => {
@@ -810,8 +866,10 @@
                 document.getElementById('levelTitle').textContent = 'Nivo 2: Brojevi 10-20';
             } else if (level === 3) {
                 document.getElementById('levelTitle').textContent = 'Nivo 3: Brojevi do 20';
+            } else if (level === 4) {
+                document.getElementById('levelTitle').textContent = 'Nivo 4: Zbrajanje do 20 (dulji način)';
             } else {
-                document.getElementById('levelTitle').textContent = 'Nivo 4: Tri broja do 20';
+                document.getElementById('levelTitle').textContent = 'Nivo 5: Zbrajanje do 20 (kraći način)';
             }
             
             nextQuestion();
@@ -819,7 +877,11 @@
 
         function generateQuestion() {
             if (currentLevel === 4) {
-                return generateThreeNumberQuestion();
+                return generateLongAddition();
+            }
+            
+            if (currentLevel === 5) {
+                return generateShortAddition();
             }
             
             const operation = Math.random() < 0.5 ? 'add' : 'subtract';
@@ -947,6 +1009,44 @@
         function displayQuestion() {
             const isMobile = window.innerWidth < 768;
             
+            if (currentTask.shortAddition) {
+                // Level 5: Short addition method
+                const { addends, result } = currentTask;
+                const additionStr = addends.join(' + ');
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number" autofocus';
+                
+                const questionHTML = `${additionStr} = <input ${inputAttrs} id="answer" style="width: 60px;">`;
+                
+                document.getElementById('question').innerHTML = questionHTML;
+                
+                // Add enter key support for desktop
+                if (!isMobile) {
+                    document.getElementById('answer').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkAnswer();
+                        }
+                    });
+                }
+                return;
+            }
+            
+            if (currentTask.longAddition) {
+                // Level 4: Long addition method
+                const { a, b, part1, part2, result } = currentTask;
+                let questionHTML = '';
+                
+                if (level4Step === 1) {
+                    // Step 1: Decomposition (single digits only)
+                    questionHTML = `${a} + ${b} = ${a} + <input type="tel" inputmode="none" id="answer1" readonly style="width: 50px;"> + <input type="tel" inputmode="none" id="answer2" readonly style="width: 50px;">`;
+                } else {
+                    // Step 2: Final result (can be two digits)
+                    questionHTML = `${a} + ${b} = ${a} + ${part1} + ${part2} = <input type="tel" inputmode="none" id="answer" readonly style="width: 60px;">`;
+                }
+                
+                document.getElementById('question').innerHTML = questionHTML;
+                return;
+            }
+            
             if (currentTask.threeNumbers) {
                 const { operation1, operation2, a, b, c, result, unknownPosition } = currentTask;
                 const symbol1 = operation1 === 'add' ? '+' : '−';
@@ -995,6 +1095,183 @@
         }
 
         function checkAnswer() {
+            // Level 5 uses normal scoring logic
+            if (currentLevel === 5 && currentTask.shortAddition) {
+                const userAnswer = parseInt(document.getElementById('answer').value);
+                const correctAnswer = currentTask.result;
+                
+                if (isNaN(userAnswer)) {
+                    return;
+                }
+                
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    score++;
+                } else {
+                    incorrectTasks.push({...currentTask});
+                }
+                
+                // Log the question
+                const additionStr = currentTask.addends.join(' + ');
+                const questionText = `${additionStr} = ?`;
+                
+                sessionLog.push({
+                    question: questionText,
+                    userAnswer: userAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect
+                });
+                
+                // Show feedback
+                const feedbackDiv = document.getElementById('feedback');
+                if (isCorrect) {
+                    feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                } else {
+                    feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
+                }
+                
+                document.getElementById('submitBtn').disabled = true;
+                
+                // Hide keyboard and submit button on mobile
+                const keyboard = document.querySelector('.custom-keyboard');
+                const submitBtn = document.getElementById('submitBtn');
+                if (keyboard && window.innerWidth < 768) {
+                    keyboard.style.display = 'none';
+                    submitBtn.style.display = 'none';
+                }
+                
+                // Move to next question after delay
+                setTimeout(() => {
+                    // Show keyboard and submit button again for next question
+                    if (keyboard && window.innerWidth < 768) {
+                        keyboard.style.display = 'grid';
+                        submitBtn.style.display = 'block';
+                    }
+                    nextQuestion();
+                }, 3000);
+                
+                return;
+            }
+            
+            // Level 4 has different logic - two steps
+            if (currentLevel === 4 && currentTask.longAddition) {
+                const { a, b, part1, part2, result } = currentTask;
+                
+                if (level4Step === 1) {
+                    // Step 1: Check decomposition
+                    const input1 = document.getElementById('answer1');
+                    const input2 = document.getElementById('answer2');
+                    const userPart1 = parseInt(input1.value);
+                    const userPart2 = parseInt(input2.value);
+                    
+                    if (isNaN(userPart1) || isNaN(userPart2)) {
+                        return;
+                    }
+                    
+                    const isCorrect = (userPart1 === part1 && userPart2 === part2);
+                    
+                    if (isCorrect) {
+                        // Correct! Move to step 2
+                        const feedbackDiv = document.getElementById('feedback');
+                        feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                        
+                        document.getElementById('submitBtn').disabled = true;
+                        
+                        // Hide keyboard and submit button on mobile
+                        const keyboard = document.querySelector('.custom-keyboard');
+                        const submitBtn = document.getElementById('submitBtn');
+                        if (keyboard && window.innerWidth < 768) {
+                            keyboard.style.display = 'none';
+                            submitBtn.style.display = 'none';
+                        }
+                        
+                        setTimeout(() => {
+                            // Show keyboard and submit button again
+                            if (keyboard && window.innerWidth < 768) {
+                                keyboard.style.display = 'grid';
+                                submitBtn.style.display = 'block';
+                            }
+                            
+                            // Move to step 2
+                            level4Step = 2;
+                            displayQuestion();
+                            document.getElementById('feedback').innerHTML = '';
+                            document.getElementById('submitBtn').disabled = false;
+                        }, 2000);
+                    } else {
+                        // Incorrect! Try again
+                        const feedbackDiv = document.getElementById('feedback');
+                        feedbackDiv.innerHTML = '<div class="emoji large shake">😞</div><div class="incorrect">Pokušaj ponovo!</div>';
+                        
+                        document.getElementById('submitBtn').disabled = true;
+                        
+                        // Hide keyboard and submit button on mobile
+                        const keyboard = document.querySelector('.custom-keyboard');
+                        const submitBtn = document.getElementById('submitBtn');
+                        if (keyboard && window.innerWidth < 768) {
+                            keyboard.style.display = 'none';
+                            submitBtn.style.display = 'none';
+                        }
+                        
+                        setTimeout(() => {
+                            // Show keyboard and submit button again
+                            if (keyboard && window.innerWidth < 768) {
+                                keyboard.style.display = 'grid';
+                                submitBtn.style.display = 'block';
+                            }
+                            
+                            // Clear inputs and try again
+                            input1.value = '';
+                            input2.value = '';
+                            document.getElementById('feedback').innerHTML = '';
+                            document.getElementById('submitBtn').disabled = false;
+                        }, 2000);
+                    }
+                } else {
+                    // Step 2: Check final result
+                    const userAnswer = parseInt(document.getElementById('answer').value);
+                    
+                    if (isNaN(userAnswer)) {
+                        return;
+                    }
+                    
+                    const isCorrect = userAnswer === result;
+                    
+                    // Show feedback
+                    const feedbackDiv = document.getElementById('feedback');
+                    if (isCorrect) {
+                        feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                    } else {
+                        feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${result}</div>`;
+                    }
+                    
+                    document.getElementById('submitBtn').disabled = true;
+                    
+                    // Hide keyboard and submit button on mobile
+                    const keyboard = document.querySelector('.custom-keyboard');
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (keyboard && window.innerWidth < 768) {
+                        keyboard.style.display = 'none';
+                        submitBtn.style.display = 'none';
+                    }
+                    
+                    setTimeout(() => {
+                        // Show keyboard and submit button again
+                        if (keyboard && window.innerWidth < 768) {
+                            keyboard.style.display = 'grid';
+                            submitBtn.style.display = 'block';
+                        }
+                        
+                        // Reset to step 1 and move to next question
+                        level4Step = 1;
+                        nextQuestion();
+                    }, 3000);
+                }
+                return;
+            }
+            
+            // Original checkAnswer logic for levels 1-3
             const userAnswer = parseInt(document.getElementById('answer').value);
             const correctAnswer = currentTask.correctAnswer;
             
@@ -1081,41 +1358,57 @@
             document.getElementById('gameScreen').style.display = 'none';
             document.getElementById('resultsScreen').style.display = 'block';
             
-            const percentage = Math.round((score / totalQuestions) * 100);
-            const wrongAnswers = totalQuestions - score;
-            let message = '';
-            
-            if (percentage === 100) {
-                message = '<br>🌟 Odlično! 🌟';
-            } else if (wrongAnswers <= 2) {
-                message = '<br>👍 Vrlo dobro!';
-            } else if (wrongAnswers <= 4) {
-                message = '<br>😊 Dobro!';
+            // Level 4 has no scoring - just completion
+            if (currentLevel === 4) {
+                document.getElementById('score').innerHTML = `
+                    🎉 Vježba završena! 🎉
+                    <br><br>
+                    Odlično si vježbao zbrajanje na dulji način!
+                `;
+                
+                // Hide the log table for Level 4
+                document.querySelector('.log-table').parentElement.style.display = 'none';
             } else {
-                message = '<br>💪 Može to i malo bolje!';
+                // Normal scoring for levels 1-3
+                const percentage = Math.round((score / totalQuestions) * 100);
+                const wrongAnswers = totalQuestions - score;
+                let message = '';
+                
+                if (percentage === 100) {
+                    message = '<br>🌟 Odlično! 🌟';
+                } else if (wrongAnswers <= 2) {
+                    message = '<br>👍 Vrlo dobro!';
+                } else if (wrongAnswers <= 4) {
+                    message = '<br>😊 Dobro!';
+                } else {
+                    message = '<br>💪 Može to i malo bolje!';
+                }
+                
+                document.getElementById('score').innerHTML = `
+                    Tvoj rezultat: ${score}/${totalQuestions} (${percentage}%)
+                    ${message}
+                `;
+                
+                // Show the log table
+                document.querySelector('.log-table').parentElement.style.display = 'block';
+                
+                // Fill the log table
+                const tbody = document.getElementById('logTableBody');
+                tbody.innerHTML = '';
+                
+                sessionLog.forEach((log, index) => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = index + 1;
+                    row.insertCell(1).textContent = log.question;
+                    row.insertCell(2).textContent = log.userAnswer;
+                    row.insertCell(3).textContent = log.correctAnswer;
+                    const resultCell = row.insertCell(4);
+                    resultCell.textContent = log.isCorrect ? '✓' : '✗';
+                    resultCell.style.color = log.isCorrect ? '#38ef7d' : '#ff6b6b';
+                    resultCell.style.fontWeight = 'bold';
+                    resultCell.style.fontSize = '1.5em';
+                });
             }
-            
-            document.getElementById('score').innerHTML = `
-                Tvoj rezultat: ${score}/${totalQuestions} (${percentage}%)
-                ${message}
-            `;
-            
-            // Fill the log table
-            const tbody = document.getElementById('logTableBody');
-            tbody.innerHTML = '';
-            
-            sessionLog.forEach((log, index) => {
-                const row = tbody.insertRow();
-                row.insertCell(0).textContent = index + 1;
-                row.insertCell(1).textContent = log.question;
-                row.insertCell(2).textContent = log.userAnswer;
-                row.insertCell(3).textContent = log.correctAnswer;
-                const resultCell = row.insertCell(4);
-                resultCell.textContent = log.isCorrect ? '✓' : '✗';
-                resultCell.style.color = log.isCorrect ? '#38ef7d' : '#ff6b6b';
-                resultCell.style.fontWeight = 'bold';
-                resultCell.style.fontSize = '1.5em';
-            });
         }
 
         function restartGame() {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'matematika-v1.0';
+const CACHE_NAME = 'matematika-v1.4';
 const urlsToCache = [
   './',
   './index.html',
