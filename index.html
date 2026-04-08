@@ -499,7 +499,7 @@
                 Nivo 5: Zbrajanje do 20 (kraći način)
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.5</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.6</a>
             </div>
         </div>
 
@@ -563,6 +563,13 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.6</h3>
+                <ul>
+                    <li>Popravljen unos na desktopu za Nivo 4 i 5</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.5</h3>
                 <ul>
@@ -1043,16 +1050,26 @@
                 // Level 4: Long addition method
                 const { a, b, part1, part2, result } = currentTask;
                 let questionHTML = '';
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number"';
                 
                 if (level4Step === 1) {
                     // Step 1: Decomposition (single digits only)
-                    questionHTML = `${a} + ${b} = ${a} + <input type="tel" inputmode="none" id="answer1" readonly style="width: 50px;"> + <input type="tel" inputmode="none" id="answer2" readonly style="width: 50px;">`;
+                    questionHTML = `${a} + ${b} = ${a} + <input ${inputAttrs} id="answer1" style="width: 50px;"> + <input ${inputAttrs} id="answer2" style="width: 50px;">`;
                 } else {
                     // Step 2: Final result (can be two digits)
-                    questionHTML = `${a} + ${b} = ${a} + ${part1} + ${part2} = <input type="tel" inputmode="none" id="answer" readonly style="width: 60px;">`;
+                    questionHTML = `${a} + ${b} = ${a} + ${part1} + ${part2} = <input ${inputAttrs} id="answer" style="width: 60px;">`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
+                
+                // Add enter key support for desktop
+                if (!isMobile && level4Step === 2) {
+                    document.getElementById('answer').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkAnswer();
+                        }
+                    });
+                }
                 return;
             }
             
