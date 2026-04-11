@@ -66,6 +66,31 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             font-weight: bold;
+            position: relative;
+        }
+
+        .printer-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .printer-icon:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Hide printer icon on mobile */
+        @media (max-width: 768px) {
+            .printer-icon {
+                display: none;
+            }
         }
 
         .level-btn:hover {
@@ -137,8 +162,15 @@
 
         @media (min-width: 769px) {
             .question input {
-                width: 80px;
+                width: 60px;
                 font-size: 1.2em;
+                padding: 10px;
+            }
+            
+            /* Larger input for results (two digits) */
+            .question input.result-input {
+                width: 100px;
+                font-size: 1.5em;
                 padding: 12px;
             }
         }
@@ -504,21 +536,26 @@
             <h1>🎓 Matematika 🎓</h1>
             <button class="level-btn" onclick="startGame(1)">
                 Nivo 1: Brojevi do 10
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(1);">🖨️</span>
             </button>
             <button class="level-btn" onclick="startGame(2)">
                 Nivo 2: Brojevi 10-20
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(2);">🖨️</span>
             </button>
             <button class="level-btn" onclick="startGame(3)">
                 Nivo 3: Brojevi do 20
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(3);">🖨️</span>
             </button>
             <button class="level-btn" onclick="startGame(4)">
                 Nivo 4: Zbrajanje do 20 (dulji način)
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(4);">🖨️</span>
             </button>
             <button class="level-btn" onclick="startGame(5)">
                 Nivo 5: Zbrajanje do 20 (kraći način)
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(5);">🖨️</span>
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.8</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.11</a>
             </div>
         </div>
 
@@ -582,6 +619,32 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.11</h3>
+                <ul>
+                    <li>Dodana ikonica printera (🖨️) na level gumbove (samo desktop)</li>
+                    <li>Generiranje radnog listića za bilo koji nivo bez potrebe za igranjem</li>
+                    <li>Radni listić s crticama umjesto kućica</li>
+                    <li>Dva stupca s po 5 zadataka za lakši ispis</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.10</h3>
+                <ul>
+                    <li>Optimizirane veličine kućica na desktopu</li>
+                    <li>Male kućice (60px) za jednoznamenkaste brojeve</li>
+                    <li>Velike kućice (100px) za dvoznamenkaste rezultate</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.9</h3>
+                <ul>
+                    <li>Dodatno povećane kućice na desktopu (100px, font 1.5em)</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.8</h3>
                 <ul>
@@ -1066,7 +1129,7 @@
                 const additionStr = addends.join(' + ');
                 const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number" autofocus';
                 
-                const questionHTML = `${additionStr} = <input ${inputAttrs} id="answer">`;
+                const questionHTML = `${additionStr} = <input ${inputAttrs} id="answer" class="result-input">`;
                 
                 document.getElementById('question').innerHTML = questionHTML;
                 
@@ -1092,7 +1155,7 @@
                     questionHTML = `${a} + ${b} = ${a} + <input ${inputAttrs} id="answer1"> + <input ${inputAttrs} id="answer2">`;
                 } else {
                     // Step 2: Final result (can be two digits)
-                    questionHTML = `${a} + ${b} = ${a} + ${part1} + ${part2} = <input ${inputAttrs} id="answer">`;
+                    questionHTML = `${a} + ${b} = ${a} + ${part1} + ${part2} = <input ${inputAttrs} id="answer" class="result-input">`;
                 }
                 
                 document.getElementById('question').innerHTML = questionHTML;
@@ -1514,6 +1577,172 @@
             if (event.target === modal) {
                 closeChangelog();
             }
+        }
+
+        function generateWorksheet(level) {
+            // Generate 10 random tasks for the specified level
+            const levelNames = {
+                1: 'Nivo 1: Brojevi do 10',
+                2: 'Nivo 2: Brojevi 10-20',
+                3: 'Nivo 3: Brojevi do 20',
+                4: 'Nivo 4: Zbrajanje do 20 (dulji način)',
+                5: 'Nivo 5: Zbrajanje do 20 (kraći način)'
+            };
+            
+            const win = window.open('', '_blank');
+            
+            let html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Radni listić - ${levelNames[level]}</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            font-size: 28px;
+        }
+        .info {
+            margin: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+        .info-line {
+            border-bottom: 1px solid #333;
+            display: inline-block;
+            min-width: 200px;
+        }
+        .tasks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .task-item {
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+        .task-number {
+            color: #667eea;
+            margin-right: 10px;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 2px solid #333;
+            min-width: 50px;
+            margin: 0 5px;
+        }
+        .underline-long {
+            min-width: 70px;
+        }
+        .print-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            font-weight: bold;
+        }
+        .print-btn:hover {
+            opacity: 0.9;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 Radni listić - ${levelNames[level]} 🎓</h1>
+    <div class="info">
+        <div>Ime: <span class="info-line"></span></div>
+        <div>Datum: <span class="info-line"></span></div>
+    </div>
+    <div class="tasks">
+`;
+            
+            // Generate 10 tasks
+            const oldLevel = currentLevel;
+            currentLevel = level;
+            
+            for (let i = 0; i < 10; i++) {
+                let task;
+                if (level === 4) {
+                    task = generateLongAddition();
+                } else if (level === 5) {
+                    task = generateShortAddition();
+                } else {
+                    task = generateQuestion();
+                }
+                
+                let taskHTML = '';
+                
+                if (task.longAddition) {
+                    // Level 4: a + b = a + ___ + ___ = ___
+                    const { a, b } = task;
+                    taskHTML = `${a} + ${b} = ${a} + <span class="underline"></span> + <span class="underline"></span> = <span class="underline-long"></span>`;
+                } else if (task.shortAddition) {
+                    // Level 5: a + b + c = ___
+                    const additionStr = task.addends.join(' + ');
+                    taskHTML = `${additionStr} = <span class="underline-long"></span>`;
+                } else {
+                    // Levels 1-3: regular operations
+                    const { operation, a, b, result, unknownPosition } = task;
+                    const symbol = operation === 'add' ? '+' : '−';
+                    
+                    if (unknownPosition === 0) {
+                        taskHTML = `<span class="underline"></span> ${symbol} ${b} = ${result}`;
+                    } else if (unknownPosition === 1) {
+                        taskHTML = `${a} ${symbol} <span class="underline"></span> = ${result}`;
+                    } else {
+                        taskHTML = `${a} ${symbol} ${b} = <span class="underline-long"></span>`;
+                    }
+                }
+                
+                html += `
+                <div class="task-item">
+                    <span class="task-number">${i + 1}.</span>
+                    ${taskHTML}
+                </div>
+                `;
+            }
+            
+            currentLevel = oldLevel;
+            
+            html += `
+    </div>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Ispiši radni listić</button>
+    <div class="footer no-print">
+        Napravljeno na vserbu.github.io/matematika
+    </div>
+</body>
+</html>
+            `;
+            
+            win.document.write(html);
+            win.document.close();
         }
 
         function downloadWorksheet() {
