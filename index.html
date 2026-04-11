@@ -74,7 +74,7 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.7em;
+            font-size: 0.5em;
             cursor: pointer;
             padding: 5px 8px;
             background: rgba(255, 255, 255, 0.2);
@@ -555,7 +555,7 @@
                 <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(5);">🖨️</span>
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.12</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.13</a>
             </div>
         </div>
 
@@ -619,6 +619,14 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.13</h3>
+                <ul>
+                    <li>Ikonica printera još manja (0.5em)</li>
+                    <li>Popravljene crtice u radnom listiću - sad vidljive svugdje</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.12</h3>
                 <ul>
@@ -1652,10 +1660,15 @@
             display: inline-block;
             border-bottom: 2px solid #333;
             min-width: 50px;
+            height: 1em;
             margin: 0 5px;
         }
         .underline-long {
+            display: inline-block;
+            border-bottom: 2px solid #333;
             min-width: 70px;
+            height: 1em;
+            margin: 0 5px;
         }
         .print-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
