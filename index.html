@@ -317,6 +317,10 @@
             animation: headShake 0.6s ease-in-out;
         }
 
+        .emoji.nod {
+            animation: headNod 0.8s ease-in-out;
+        }
+
         @media (max-width: 768px) {
             .emoji {
                 font-size: 2.5em;
@@ -335,6 +339,16 @@
             60% { transform: translateX(6px) rotate(3deg); }
             75% { transform: translateX(-4px) rotate(-2deg); }
             100% { transform: translateX(0); }
+        }
+
+        @keyframes headNod {
+            0% { transform: translateY(0); }
+            15% { transform: translateY(-8px); }
+            30% { transform: translateY(0); }
+            45% { transform: translateY(-6px); }
+            60% { transform: translateY(0); }
+            75% { transform: translateY(-4px); }
+            100% { transform: translateY(0); }
         }
 
         .correct {
@@ -671,7 +685,7 @@
                 <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(7);">🖨️</span>
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.20</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.21</a>
             </div>
         </div>
 
@@ -735,6 +749,14 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.21</h3>
+                <ul>
+                    <li>Animacija za točan odgovor - 😊 sada kima glavom gore-dolje!</li>
+                    <li>Obje animacije (točno i netočno) sada nagrađuju djecu</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.20</h3>
                 <ul>
@@ -1599,7 +1621,7 @@
                 // Show feedback
                 const feedbackDiv = document.getElementById('feedback');
                 if (isCorrect) {
-                    feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                    feedbackDiv.innerHTML = '<div class="emoji large nod">😊</div><div class="correct">Točno!</div>';
                 } else {
                     feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
                 }
@@ -1658,7 +1680,7 @@
                 // Show feedback
                 const feedbackDiv = document.getElementById('feedback');
                 if (isCorrect) {
-                    feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                    feedbackDiv.innerHTML = '<div class="emoji large nod">😊</div><div class="correct">Točno!</div>';
                 } else {
                     feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
                 }
@@ -1721,7 +1743,7 @@
                     if (isCorrect) {
                         // Correct! Move to step 2
                         const feedbackDiv = document.getElementById('feedback');
-                        feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                        feedbackDiv.innerHTML = '<div class="emoji large nod">😊</div><div class="correct">Točno!</div>';
                         
                         document.getElementById('submitBtn').disabled = true;
                         
@@ -1823,7 +1845,7 @@
                     // Show feedback
                     const feedbackDiv = document.getElementById('feedback');
                     if (isCorrect) {
-                        feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                        feedbackDiv.innerHTML = '<div class="emoji large nod">😊</div><div class="correct">Točno!</div>';
                     } else {
                         feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${result}</div>`;
                     }
@@ -1910,7 +1932,7 @@
             // Show feedback
             const feedbackDiv = document.getElementById('feedback');
             if (isCorrect) {
-                feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                feedbackDiv.innerHTML = '<div class="emoji large nod">😊</div><div class="correct">Točno!</div>';
             } else {
                 feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
             }
@@ -2309,7 +2331,7 @@
         }
 
         // Splash screen for new features
-        const CURRENT_VERSION = '1.20';
+        const CURRENT_VERSION = '1.21';
         const VERSION_FEATURES = {
             '1.14': [
                 'Nivo 6: Oduzimanje do 20 (dulji način)',
