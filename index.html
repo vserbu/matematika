@@ -380,11 +380,11 @@
         }
 
         .emoji-sad {
-            animation: runAway 5s ease-in-out forwards;
+            animation: runAway 8s ease-in-out forwards;
         }
 
         .emoji-happy {
-            animation: chase 5s ease-in-out forwards;
+            animation: chase 8s ease-in-out forwards;
         }
 
         @keyframes runAway {
@@ -392,15 +392,15 @@
                 left: 60%;
                 transform: translateY(-50%) rotate(0deg);
             }
-            20% {
+            15% {
                 left: 70%;
                 transform: translateY(-50%) rotate(10deg);
             }
-            40% {
+            30% {
                 left: 85%;
                 transform: translateY(-50%) rotate(-10deg);
             }
-            60% {
+            45% {
                 left: 120%;
                 transform: translateY(-50%) rotate(360deg) scale(0.3);
                 opacity: 0;
@@ -417,46 +417,62 @@
                 left: -10%;
                 transform: translateY(-50%);
             }
-            20% {
+            15% {
                 left: 30%;
                 transform: translateY(-50%);
             }
-            40% {
+            30% {
                 left: 55%;
-                transform: translateY(-50%) scale(1.2);
+                transform: translateY(-50%);
+            }
+            45% {
+                left: 80%;
+                transform: translateY(-50%);
+            }
+            /* Happy stays on the right side and jumps - keeping same size */
+            50% {
+                left: 80%;
+                transform: translateY(-50%);
+            }
+            55% {
+                left: 80%;
+                transform: translateY(-80px);
             }
             60% {
                 left: 80%;
-                transform: translateY(-50%) scale(1.5);
+                transform: translateY(-50%);
             }
-            /* Happy stays on the right side and jumps */
             65% {
                 left: 80%;
-                transform: translateY(-50%) scale(1.8);
+                transform: translateY(-70px);
             }
             70% {
                 left: 80%;
-                transform: translateY(-80px) scale(1.8);
+                transform: translateY(-50%);
             }
             75% {
                 left: 80%;
-                transform: translateY(-50%) scale(1.8);
+                transform: translateY(-60px);
             }
             80% {
                 left: 80%;
-                transform: translateY(-60px) scale(1.8);
+                transform: translateY(-50%);
             }
             85% {
                 left: 80%;
-                transform: translateY(-50%) scale(1.8);
+                transform: translateY(-50px);
             }
             90% {
                 left: 80%;
-                transform: translateY(-40px) scale(1.8);
+                transform: translateY(-50%);
+            }
+            95% {
+                left: 80%;
+                transform: translateY(-40px);
             }
             100% {
                 left: 80%;
-                transform: translateY(-50%) scale(1.8);
+                transform: translateY(-50%);
             }
         }
 
@@ -476,6 +492,49 @@
             0% { transform: translateX(-50%) scale(0); }
             50% { transform: translateX(-50%) scale(1.2); }
             100% { transform: translateX(-50%) scale(1); }
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            top: -10%;
+        }
+
+        .confetti:nth-child(1) { left: 10%; background: #ff6b6b; animation: confettiFall 3s linear infinite; animation-delay: 0s; }
+        .confetti:nth-child(2) { left: 20%; background: #4ecdc4; animation: confettiFall 3.5s linear infinite; animation-delay: 0.2s; }
+        .confetti:nth-child(3) { left: 30%; background: #ffe66d; animation: confettiFall 3.2s linear infinite; animation-delay: 0.4s; }
+        .confetti:nth-child(4) { left: 40%; background: #a8e6cf; animation: confettiFall 3.8s linear infinite; animation-delay: 0.1s; }
+        .confetti:nth-child(5) { left: 50%; background: #ff6b9d; animation: confettiFall 3.3s linear infinite; animation-delay: 0.5s; }
+        .confetti:nth-child(6) { left: 60%; background: #c7ceea; animation: confettiFall 3.6s linear infinite; animation-delay: 0.3s; }
+        .confetti:nth-child(7) { left: 70%; background: #ffd93d; animation: confettiFall 3.4s linear infinite; animation-delay: 0.6s; }
+        .confetti:nth-child(8) { left: 80%; background: #6bcf7f; animation: confettiFall 3.7s linear infinite; animation-delay: 0.2s; }
+        .confetti:nth-child(9) { left: 90%; background: #ff8a5b; animation: confettiFall 3.1s linear infinite; animation-delay: 0.4s; }
+        .confetti:nth-child(10) { left: 15%; background: #b8b8ff; animation: confettiFall 3.5s linear infinite; animation-delay: 0.7s; }
+        .confetti:nth-child(11) { left: 25%; background: #ffadad; animation: confettiFall 3.3s linear infinite; animation-delay: 0.1s; }
+        .confetti:nth-child(12) { left: 35%; background: #ffd6a5; animation: confettiFall 3.6s linear infinite; animation-delay: 0.3s; }
+        .confetti:nth-child(13) { left: 45%; background: #caffbf; animation: confettiFall 3.2s linear infinite; animation-delay: 0.5s; }
+        .confetti:nth-child(14) { left: 55%; background: #9bf6ff; animation: confettiFall 3.4s linear infinite; animation-delay: 0.2s; }
+        .confetti:nth-child(15) { left: 65%; background: #bdb2ff; animation: confettiFall 3.7s linear infinite; animation-delay: 0.6s; }
+        .confetti:nth-child(16) { left: 75%; background: #ffc6ff; animation: confettiFall 3.1s linear infinite; animation-delay: 0.4s; }
+        .confetti:nth-child(17) { left: 85%; background: #fdffb6; animation: confettiFall 3.5s linear infinite; animation-delay: 0.1s; }
+        .confetti:nth-child(18) { left: 95%; background: #a0c4ff; animation: confettiFall 3.8s linear infinite; animation-delay: 0.3s; }
+        .confetti:nth-child(19) { left: 12%; background: #ff9aa2; animation: confettiFall 3.3s linear infinite; animation-delay: 0.5s; }
+        .confetti:nth-child(20) { left: 88%; background: #e2f0cb; animation: confettiFall 3.6s linear infinite; animation-delay: 0.7s; }
+
+        @keyframes confettiFall {
+            0% {
+                top: -10%;
+                transform: translateX(0) rotateZ(0deg);
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                transform: translateX(100px) rotateZ(360deg);
+                opacity: 0;
+            }
         }
 
         .correct {
@@ -812,7 +871,7 @@
                 <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(7);">🖨️</span>
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.23</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.24</a>
             </div>
         </div>
 
@@ -877,6 +936,27 @@
             <div class="emoji-runner emoji-sad">😞</div>
             <div class="emoji-runner emoji-happy">😊</div>
         </div>
+        <!-- Confetti -->
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
     </div>
 
     <!-- Changelog Modal -->
@@ -885,6 +965,16 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.24 🎊</h3>
+                <ul>
+                    <li>Dodani šareni konfeti koji padaju s vrha! 🎉</li>
+                    <li>😊 skače 6 puta umjesto 3</li>
+                    <li>Animacija traje 8 sekundi (duža zabava!)</li>
+                    <li>😊 ostaje normalne veličine tijekom skakanja</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.23</h3>
                 <ul>
@@ -2115,10 +2205,10 @@
             const overlay = document.getElementById('celebrationOverlay');
             overlay.classList.remove('hidden');
             
-            // Hide celebration after animation completes (5 seconds + 0.5s buffer)
+            // Hide celebration after animation completes (8 seconds + 0.5s buffer)
             setTimeout(() => {
                 overlay.classList.add('hidden');
-            }, 5500);
+            }, 8500);
         }
 
         function showResults() {
@@ -2496,7 +2586,7 @@
         }
 
         // Splash screen for new features
-        const CURRENT_VERSION = '1.23';
+        const CURRENT_VERSION = '1.24';
         const VERSION_FEATURES = {
             '1.14': [
                 'Nivo 6: Oduzimanje do 20 (dulji način)',
