@@ -671,7 +671,7 @@
                 <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(7);">🖨️</span>
             </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.18</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.20</a>
             </div>
         </div>
 
@@ -735,6 +735,22 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.20</h3>
+                <ul>
+                    <li>Popravljen splash screen - prikazuje se prvi neviđeni splash</li>
+                    <li>Korisnici koji su preskočili verziju 1.14 sad vide novosti</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.19</h3>
+                <ul>
+                    <li>Sprječavanje duplikata unutar iste vježbe</li>
+                    <li>Svaki zadatak u sesiji od 10 zadataka je sada jedinstven</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.18</h3>
                 <ul>
@@ -985,6 +1001,7 @@
         let retryMode = false; // Flag to indicate if we're in retry mode
         let retryTasks = []; // Tasks to retry in current session
         let level4Step = 1; // Track which step in Level 4 (1 = decomposition, 2 = result)
+        let usedTasks = []; // Track tasks used in current session to avoid duplicates
 
         function addDigit(digit) {
             if ((currentLevel === 4 || currentLevel === 6) && level4Step === 1) {
@@ -1176,6 +1193,7 @@
             retryMode = false;
             retryTasks = [];
             level4Step = 1; // Reset to step 1 for Level 4
+            usedTasks = []; // Reset used tasks for new session
             
             // Calculate how many new tasks vs incorrect tasks
             const numIncorrect = incorrectTasks.filter(t => {
@@ -1344,6 +1362,23 @@
             };
         }
 
+        function getTaskSignature(task) {
+            // Create unique signature for a task to detect duplicates
+            if (task.longAddition) {
+                return `LA_${task.a}_${task.b}`;
+            } else if (task.shortAddition) {
+                return `SA_${task.addends.join('_')}`;
+            } else if (task.longSubtraction) {
+                return `LS_${task.minuend}_${task.subtrahend}`;
+            } else if (task.shortSubtraction) {
+                return `SS_${task.minuend}_${task.subtrahend}`;
+            } else if (task.threeNumbers) {
+                return `3N_${task.operation1}_${task.operation2}_${task.a}_${task.b}_${task.c}_${task.unknownPosition}`;
+            } else {
+                return `2N_${task.operation}_${task.a}_${task.b}_${task.unknownPosition}`;
+            }
+        }
+
         function nextQuestion() {
             if (currentQuestion >= totalQuestions) {
                 showResults();
@@ -1357,8 +1392,22 @@
                 currentTask = retryTasks[randomIndex];
                 retryTasks.splice(randomIndex, 1); // Remove used task
             } else {
-                // Generate a new task
-                currentTask = generateQuestion();
+                // Generate a new task, avoiding duplicates
+                let attempts = 0;
+                const maxAttempts = 50;
+                
+                do {
+                    currentTask = generateQuestion();
+                    attempts++;
+                    
+                    if (attempts >= maxAttempts) {
+                        // If we can't find a unique task after 50 attempts, allow duplicate
+                        break;
+                    }
+                } while (usedTasks.includes(getTaskSignature(currentTask)));
+                
+                // Add to used tasks
+                usedTasks.push(getTaskSignature(currentTask));
             }
             
             currentQuestion++;
@@ -2260,7 +2309,7 @@
         }
 
         // Splash screen for new features
-        const CURRENT_VERSION = '1.18';
+        const CURRENT_VERSION = '1.20';
         const VERSION_FEATURES = {
             '1.14': [
                 'Nivo 6: Oduzimanje do 20 (dulji način)',
@@ -2279,14 +2328,41 @@
         function showSplashIfNeeded() {
             const lastSeenVersion = localStorage.getItem('lastSeenVersion');
             
-            // Show splash if this is a new version with features
-            if (lastSeenVersion !== CURRENT_VERSION && VERSION_FEATURES[CURRENT_VERSION]) {
-                const features = VERSION_FEATURES[CURRENT_VERSION];
-                const featuresList = document.getElementById('splashFeatures');
-                featuresList.innerHTML = features.map(f => `<li>${f}</li>`).join('');
-                
-                document.getElementById('splashScreen').classList.remove('hidden');
+            // Find the first version with features that user hasn't seen
+            const versions = Object.keys(VERSION_FEATURES).sort().reverse(); // Newest first
+            
+            for (const version of versions) {
+                // If user hasn't seen this version, or if there's no lastSeenVersion
+                if (!lastSeenVersion || compareVersions(version, lastSeenVersion) > 0) {
+                    // Show splash for this version
+                    const features = VERSION_FEATURES[version];
+                    const featuresList = document.getElementById('splashFeatures');
+                    featuresList.innerHTML = features.map(f => `<li>${f}</li>`).join('');
+                    
+                    document.getElementById('splashScreen').classList.remove('hidden');
+                    
+                    // Store current version as seen (not the splash version)
+                    // This way, next time they'll see the next new splash
+                    break;
+                }
             }
+        }
+        
+        function compareVersions(v1, v2) {
+            // Compare version strings (e.g., "1.14" vs "1.10")
+            // Returns: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
+            const parts1 = v1.split('.').map(Number);
+            const parts2 = v2.split('.').map(Number);
+            
+            for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                const num1 = parts1[i] || 0;
+                const num2 = parts2[i] || 0;
+                
+                if (num1 > num2) return 1;
+                if (num1 < num2) return -1;
+            }
+            
+            return 0;
         }
 
         function closeSplash() {
