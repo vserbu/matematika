@@ -509,6 +509,103 @@
             color: #333;
         }
 
+        .splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .splash-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: splashIn 0.5s ease-out;
+        }
+
+        @keyframes splashIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .splash-content h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .splash-features {
+            text-align: left;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+
+        .splash-features li {
+            margin: 15px 0;
+            font-size: 1.1em;
+            list-style: none;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .splash-features li:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .splash-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .splash-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .splash-content {
+                padding: 30px 20px;
+            }
+            
+            .splash-content h2 {
+                font-size: 1.5em;
+            }
+            
+            .splash-features li {
+                font-size: 1em;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -530,6 +627,17 @@
     </style>
 </head>
 <body>
+    <!-- Splash Screen for New Features -->
+    <div id="splashScreen" class="splash-overlay hidden">
+        <div class="splash-content">
+            <h2>🎉 Novo u aplikaciji!</h2>
+            <ul class="splash-features" id="splashFeatures">
+                <!-- Features will be inserted here -->
+            </ul>
+            <button class="splash-btn" onclick="closeSplash()">Kreni! 🚀</button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Level Selection Screen -->
         <div id="levelSelection" class="level-selection">
@@ -554,8 +662,16 @@
                 Nivo 5: Zbrajanje do 20 (kraći način)
                 <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(5);">🖨️</span>
             </button>
+            <button class="level-btn" onclick="startGame(6)">
+                Nivo 6: Oduzimanje do 20 (dulji način)
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(6);">🖨️</span>
+            </button>
+            <button class="level-btn" onclick="startGame(7)">
+                Nivo 7: Oduzimanje do 20 (kraći način)
+                <span class="printer-icon" onclick="event.stopPropagation(); generateWorksheet(7);">🖨️</span>
+            </button>
             <div style="text-align: center; margin-top: 30px; font-size: 0.9em;">
-                <a class="version-link" onclick="showChangelog()">verzija 1.13</a>
+                <a class="version-link" onclick="showChangelog()">verzija 1.18</a>
             </div>
         </div>
 
@@ -619,6 +735,49 @@
             <span class="changelog-close" onclick="closeChangelog()">&times;</span>
             <h2>📋 Povijest promjena</h2>
             
+            <div class="changelog-version">
+                <h3>Verzija 1.18</h3>
+                <ul>
+                    <li><strong>BUGFIX:</strong> Popravljena custom tipkovnica za Nivo 6</li>
+                    <li>Sada se brojevi ispravno upisuju u Nivo 6 Step 1</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.17</h3>
+                <ul>
+                    <li>Vraćen umanjenik na 11-20 za Nivo 6 i 7</li>
+                    <li>Rezultat i dalje mora biti 1-9 (jednoznamenkast)</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.16</h3>
+                <ul>
+                    <li>Popravak: Nivo 6 i 7 sada koriste umanjenik 12-20 (bilo 11-20)</li>
+                    <li>Rezultat u oba nivoa mora biti 1-9 (jednoznamenkast)</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.15</h3>
+                <ul>
+                    <li>Popravak: Nivo 6 sada generira samo zadatke koji prelaze deseticu</li>
+                    <li>Rezultat u Nivo 6 mora biti 1-9 (jednoznamenkast)</li>
+                </ul>
+            </div>
+
+            <div class="changelog-version">
+                <h3>Verzija 1.14</h3>
+                <ul>
+                    <li><strong>Nivo 6: Oduzimanje do 20 (dulji način)</strong></li>
+                    <li><strong>Nivo 7: Oduzimanje do 20 (kraći način)</strong></li>
+                    <li>Oduzimatelj minimalno 3, rezultat uvijek > 0</li>
+                    <li>Radni listići podržavaju nove nivoe</li>
+                    <li>Splash screen s novostima pri prvom pokretanju nove verzije</li>
+                </ul>
+            </div>
+
             <div class="changelog-version">
                 <h3>Verzija 1.13</h3>
                 <ul>
@@ -828,8 +987,8 @@
         let level4Step = 1; // Track which step in Level 4 (1 = decomposition, 2 = result)
 
         function addDigit(digit) {
-            if (currentLevel === 4 && level4Step === 1) {
-                // Level 4 Step 1: Fill answer1 first (one digit only), then answer2 (one digit only)
+            if ((currentLevel === 4 || currentLevel === 6) && level4Step === 1) {
+                // Level 4 or 6 Step 1: Fill answer1 first (one digit only), then answer2 (one digit only)
                 const input1 = document.getElementById('answer1');
                 const input2 = document.getElementById('answer2');
                 
@@ -853,8 +1012,8 @@
         }
 
         function deleteDigit() {
-            if (currentLevel === 4 && level4Step === 1) {
-                // Level 4 Step 1: Delete from answer2 first, then answer1
+            if ((currentLevel === 4 || currentLevel === 6) && level4Step === 1) {
+                // Level 4 or 6 Step 1: Delete from answer2 first, then answer1
                 const input1 = document.getElementById('answer1');
                 const input2 = document.getElementById('answer2');
                 
@@ -903,6 +1062,72 @@
             return {
                 shortAddition: true,
                 addends: addends,
+                result: result
+            };
+        }
+
+        function generateLongSubtraction() {
+            // Generate subtraction task for "long way" method
+            // Minuend: 11-20, Subtrahend: 3-9, Result: 1-9 (must cross tens)
+            
+            let minuend, subtrahend, result;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                minuend = 11 + Math.floor(Math.random() * 10); // 11-20
+                subtrahend = 3 + Math.floor(Math.random() * 7); // 3-9
+                result = minuend - subtrahend;
+                
+                attempts++;
+                if (attempts > maxAttempts) {
+                    minuend = 15;
+                    subtrahend = 7;
+                    result = 8;
+                    break;
+                }
+            } while (result <= 0 || result > 9); // Result must be 1-9 to require crossing tens
+            
+            // Calculate decomposition: subtrahend = part1 + part2 where minuend - part1 = 10
+            const part1 = minuend - 10;
+            const part2 = subtrahend - part1;
+            
+            return {
+                longSubtraction: true,
+                minuend: minuend,
+                subtrahend: subtrahend,
+                part1: part1,
+                part2: part2,
+                result: result
+            };
+        }
+
+        function generateShortSubtraction() {
+            // Generate subtraction task for "short way" method
+            // Minuend: 11-20, Subtrahend: 3-9, Result: 1-9 (single digit)
+            
+            let minuend, subtrahend, result;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                minuend = 11 + Math.floor(Math.random() * 10); // 11-20
+                subtrahend = 3 + Math.floor(Math.random() * 7); // 3-9
+                result = minuend - subtrahend;
+                
+                attempts++;
+                if (attempts > maxAttempts) {
+                    minuend = 14;
+                    subtrahend = 6;
+                    result = 8;
+                    break;
+                }
+            } while (result <= 0 || result > 9); // Result must be 1-9 (single digit)
+            
+            return {
+                shortSubtraction: true,
+                minuend: minuend,
+                subtrahend: subtrahend,
                 result: result
             };
         }
@@ -999,8 +1224,12 @@
                 document.getElementById('levelTitle').textContent = 'Nivo 3: Brojevi do 20';
             } else if (level === 4) {
                 document.getElementById('levelTitle').textContent = 'Nivo 4: Zbrajanje do 20 (dulji način)';
-            } else {
+            } else if (level === 5) {
                 document.getElementById('levelTitle').textContent = 'Nivo 5: Zbrajanje do 20 (kraći način)';
+            } else if (level === 6) {
+                document.getElementById('levelTitle').textContent = 'Nivo 6: Oduzimanje do 20 (dulji način)';
+            } else {
+                document.getElementById('levelTitle').textContent = 'Nivo 7: Oduzimanje do 20 (kraći način)';
             }
             
             nextQuestion();
@@ -1013,6 +1242,14 @@
             
             if (currentLevel === 5) {
                 return generateShortAddition();
+            }
+            
+            if (currentLevel === 6) {
+                return generateLongSubtraction();
+            }
+            
+            if (currentLevel === 7) {
+                return generateShortSubtraction();
             }
             
             const operation = Math.random() < 0.5 ? 'add' : 'subtract';
@@ -1140,6 +1377,53 @@
         function displayQuestion() {
             const isMobile = window.innerWidth < 768;
             
+            if (currentTask.longSubtraction) {
+                // Level 6: Long subtraction method
+                const { minuend, subtrahend, part1, part2, result } = currentTask;
+                let questionHTML = '';
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number"';
+                
+                if (level4Step === 1) {
+                    // Step 1: Decomposition (single digits only)
+                    questionHTML = `${minuend} − ${subtrahend} = ${minuend} − <input ${inputAttrs} id="answer1"> − <input ${inputAttrs} id="answer2">`;
+                } else {
+                    // Step 2: Final result
+                    questionHTML = `${minuend} − ${subtrahend} = ${minuend} − ${part1} − ${part2} = <input ${inputAttrs} id="answer" class="result-input">`;
+                }
+                
+                document.getElementById('question').innerHTML = questionHTML;
+                
+                // Add enter key support for desktop
+                if (!isMobile && level4Step === 2) {
+                    document.getElementById('answer').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkAnswer();
+                        }
+                    });
+                }
+                return;
+            }
+            
+            if (currentTask.shortSubtraction) {
+                // Level 7: Short subtraction method
+                const { minuend, subtrahend } = currentTask;
+                const inputAttrs = isMobile ? 'type="tel" inputmode="none" readonly' : 'type="number" autofocus';
+                
+                const questionHTML = `${minuend} − ${subtrahend} = <input ${inputAttrs} id="answer" class="result-input">`;
+                
+                document.getElementById('question').innerHTML = questionHTML;
+                
+                // Add enter key support for desktop
+                if (!isMobile) {
+                    document.getElementById('answer').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkAnswer();
+                        }
+                    });
+                }
+                return;
+            }
+            
             if (currentTask.shortAddition) {
                 // Level 5: Short addition method
                 const { addends, result } = currentTask;
@@ -1236,6 +1520,64 @@
         }
 
         function checkAnswer() {
+            // Level 7 uses normal scoring logic (like Level 5)
+            if (currentLevel === 7 && currentTask.shortSubtraction) {
+                const userAnswer = parseInt(document.getElementById('answer').value);
+                const correctAnswer = currentTask.result;
+                
+                if (isNaN(userAnswer)) {
+                    return;
+                }
+                
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    score++;
+                } else {
+                    incorrectTasks.push({...currentTask});
+                }
+                
+                // Log the question
+                const questionText = `${currentTask.minuend} − ${currentTask.subtrahend} = ?`;
+                
+                sessionLog.push({
+                    question: questionText,
+                    userAnswer: userAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect
+                });
+                
+                // Show feedback
+                const feedbackDiv = document.getElementById('feedback');
+                if (isCorrect) {
+                    feedbackDiv.innerHTML = '<div class="emoji large">😊</div><div class="correct">Točno!</div>';
+                } else {
+                    feedbackDiv.innerHTML = `<div class="emoji large shake">😞</div><div class="incorrect">Netočno! Točan odgovor: ${correctAnswer}</div>`;
+                }
+                
+                document.getElementById('submitBtn').disabled = true;
+                
+                // Hide keyboard and submit button on mobile
+                const keyboard = document.querySelector('.custom-keyboard');
+                const submitBtn = document.getElementById('submitBtn');
+                if (keyboard && window.innerWidth < 768) {
+                    keyboard.style.display = 'none';
+                    submitBtn.style.display = 'none';
+                }
+                
+                // Move to next question after delay
+                setTimeout(() => {
+                    // Show keyboard and submit button again for next question
+                    if (keyboard && window.innerWidth < 768) {
+                        keyboard.style.display = 'grid';
+                        submitBtn.style.display = 'block';
+                    }
+                    nextQuestion();
+                }, 3000);
+                
+                return;
+            }
+            
             // Level 5 uses normal scoring logic
             if (currentLevel === 5 && currentTask.shortAddition) {
                 const userAnswer = parseInt(document.getElementById('answer').value);
@@ -1295,9 +1637,10 @@
                 return;
             }
             
-            // Level 4 has different logic - two steps
-            if (currentLevel === 4 && currentTask.longAddition) {
-                const { a, b, part1, part2, result } = currentTask;
+            // Level 4 and 6 have different logic - two steps
+            if ((currentLevel === 4 && currentTask.longAddition) || (currentLevel === 6 && currentTask.longSubtraction)) {
+                const isAddition = currentTask.longAddition;
+                const { part1, part2, result } = currentTask;
                 
                 if (level4Step === 1) {
                     // Step 1: Check decomposition
@@ -1312,8 +1655,19 @@
                     
                     const isCorrect = (userPart1 === part1 && userPart2 === part2);
                     
-                    // Log for scoring
-                    const questionText = `${a} + ${b} = ${a} + ? + ?`;
+                    // Log for scoring - different for addition vs subtraction
+                    let questionText, firstNum, secondNum, symbol;
+                    if (isAddition) {
+                        firstNum = currentTask.a;
+                        secondNum = currentTask.b;
+                        symbol = '+';
+                        questionText = `${firstNum} ${symbol} ${secondNum} = ${firstNum} + ? + ?`;
+                    } else {
+                        firstNum = currentTask.minuend;
+                        secondNum = currentTask.subtrahend;
+                        symbol = '−';
+                        questionText = `${firstNum} ${symbol} ${secondNum} = ${firstNum} − ? − ?`;
+                    }
                     
                     if (isCorrect) {
                         // Correct! Move to step 2
@@ -1396,8 +1750,19 @@
                         incorrectTasks.push({...currentTask});
                     }
                     
-                    // Log the question for Step 2
-                    const questionText = `${a} + ${b} = ${a} + ${part1} + ${part2} = ?`;
+                    // Log the question for Step 2 - different for addition vs subtraction
+                    let questionText, firstNum, secondNum, symbol;
+                    if (isAddition) {
+                        firstNum = currentTask.a;
+                        secondNum = currentTask.b;
+                        symbol = '+';
+                        questionText = `${firstNum} ${symbol} ${secondNum} = ${firstNum} + ${part1} + ${part2} = ?`;
+                    } else {
+                        firstNum = currentTask.minuend;
+                        secondNum = currentTask.subtrahend;
+                        symbol = '−';
+                        questionText = `${firstNum} ${symbol} ${secondNum} = ${firstNum} − ${part1} − ${part2} = ?`;
+                    }
                     
                     sessionLog.push({
                         question: questionText,
@@ -1603,7 +1968,9 @@
                 2: 'Nivo 2: Brojevi 10-20',
                 3: 'Nivo 3: Brojevi do 20',
                 4: 'Nivo 4: Zbrajanje do 20 (dulji način)',
-                5: 'Nivo 5: Zbrajanje do 20 (kraći način)'
+                5: 'Nivo 5: Zbrajanje do 20 (kraći način)',
+                6: 'Nivo 6: Oduzimanje do 20 (dulji način)',
+                7: 'Nivo 7: Oduzimanje do 20 (kraći način)'
             };
             
             const win = window.open('', '_blank');
@@ -1712,6 +2079,10 @@
                     task = generateLongAddition();
                 } else if (level === 5) {
                     task = generateShortAddition();
+                } else if (level === 6) {
+                    task = generateLongSubtraction();
+                } else if (level === 7) {
+                    task = generateShortSubtraction();
                 } else {
                     task = generateQuestion();
                 }
@@ -1726,6 +2097,14 @@
                     // Level 5: a + b + c = ___
                     const additionStr = task.addends.join(' + ');
                     taskHTML = `${additionStr} = <span class="underline-long"></span>`;
+                } else if (task.longSubtraction) {
+                    // Level 6: minuend - subtrahend = minuend - ___ - ___ = ___
+                    const { minuend, subtrahend } = task;
+                    taskHTML = `${minuend} − ${subtrahend} = ${minuend} − <span class="underline"></span> − <span class="underline"></span> = <span class="underline-long"></span>`;
+                } else if (task.shortSubtraction) {
+                    // Level 7: minuend - subtrahend = ___
+                    const { minuend, subtrahend } = task;
+                    taskHTML = `${minuend} − ${subtrahend} = <span class="underline-long"></span>`;
                 } else {
                     // Levels 1-3: regular operations
                     const { operation, a, b, result, unknownPosition } = task;
@@ -1879,6 +2258,44 @@
             win.document.write(html);
             win.document.close();
         }
+
+        // Splash screen for new features
+        const CURRENT_VERSION = '1.18';
+        const VERSION_FEATURES = {
+            '1.14': [
+                'Nivo 6: Oduzimanje do 20 (dulji način)',
+                'Nivo 7: Oduzimanje do 20 (kraći način)'
+            ],
+            '1.11': [
+                'Radni listići s ikonom printera 🖨️',
+                'Generiraj radne listiće bez igranja'
+            ],
+            '0.9': [
+                'Nivo 4: Zbrajanje do 20 (dulji način)',
+                'Nivo 5: Zbrajanje do 20 (kraći način)'
+            ]
+        };
+
+        function showSplashIfNeeded() {
+            const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+            
+            // Show splash if this is a new version with features
+            if (lastSeenVersion !== CURRENT_VERSION && VERSION_FEATURES[CURRENT_VERSION]) {
+                const features = VERSION_FEATURES[CURRENT_VERSION];
+                const featuresList = document.getElementById('splashFeatures');
+                featuresList.innerHTML = features.map(f => `<li>${f}</li>`).join('');
+                
+                document.getElementById('splashScreen').classList.remove('hidden');
+            }
+        }
+
+        function closeSplash() {
+            document.getElementById('splashScreen').classList.add('hidden');
+            localStorage.setItem('lastSeenVersion', CURRENT_VERSION);
+        }
+
+        // Show splash on page load
+        window.addEventListener('DOMContentLoaded', showSplashIfNeeded);
 
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
